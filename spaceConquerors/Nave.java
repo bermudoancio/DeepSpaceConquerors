@@ -5,6 +5,7 @@ public abstract class Nave extends Carta implements IAtacable, IReparable, IMejo
 	protected static final int PUNTOS_REPARACION_NAVE = 10;
 	
 	protected int puntosDefensa;
+	private Jugador jugador;
 
 	/**
 	 * Crea la nave
@@ -45,7 +46,24 @@ public abstract class Nave extends Carta implements IAtacable, IReparable, IMejo
 	 */
 	public void reparar() {
 		this.puntosDefensa += Nave.PUNTOS_REPARACION_NAVE;
-
+	}
+	
+	/**
+	 * Asigna el dueño de una carta
+	 * @param j El dueño de la carta
+	 */
+	public void asignarAJugador(Jugador j) {
+		this.jugador = j;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("## Nave ");
+		sb.append(this.getNombre())
+		.append(". Precio: ").append(this.getPrecio())
+		.append(". Puntos de defensa: ").append(this.getPuntosDefensa());
+		
+		return sb.toString();
 	}
 
 }

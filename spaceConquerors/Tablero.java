@@ -48,9 +48,6 @@ public class Tablero {
 		// Generamos los planetas basados en el número de jugadores
 		this.generaPlanetas();
 		
-		// Asignamos aleatoriamente un planeta a cada jugador
-		this.asignacionInicial();
-		
 		// Inicializamos los dados
 		this.dadoA = new Dado(4, 2);
 		this.dadoB = new Dado(12, 1);
@@ -194,7 +191,7 @@ public class Tablero {
 	/**
 	 * Asigna aleatoriamente un planeta base a cada jugador
 	 */
-	private void asignacionInicial() {
+	public void asignacionInicial() {
 		Random r = new Random();
 		
 		for (Jugador j: this.jugadores) {
@@ -263,6 +260,88 @@ public class Tablero {
 	public Jugador[] getJugadores() {
 		return jugadores;
 	}
+
+	/**
+	 * @return el listado de naves a la venta
+	 */
+	public Nave[] getNavesVenta() {
+		return navesVenta;
+	}
+	
+	/**
+	 * @return los planetas del tablero
+	 */
+	public Planeta[] getPlanetas() {
+		return planetas;
+	}
+	
+	/**
+	 * @return los planetas del tablero que le pertenecen a un jugador determinado
+	 */
+	public Planeta[] getPlanetasDeJugador(Jugador j) {
+		/*
+		 * Recorreremos la lista dos veces: una para contar los plantas
+		 * que le perteneces al usuario y así crear un array, y otro
+		 * para asignar los planetas a ese array
+		 */
+		int numPlanetasPosee = 0;
+		for (Planeta p: planetas) {
+			if (p.getConquistador() == j) {
+				//El planeta le pertenece al usuario
+				numPlanetasPosee++;
+			}
+		}
+		
+		Planeta[] planetasDeUsuario = new Planeta[numPlanetasPosee];
+		int indice = 0;
+		
+		for (Planeta p: planetas) {
+			if (p.getConquistador() == j) {
+				//El planeta le pertenece al usuario
+				planetasDeUsuario[indice++] = p;
+			}
+		}
+		
+		return planetasDeUsuario;
+	}
+	
+	/**
+	 * Devuelve el planeta con nombre "nombre"
+	 * @param nombre El nombre del planeta buscado
+	 * @return El planeta si se encuentra o null en caso contrario
+	 */
+	public Planeta getPlaneta(String nombre) {
+		Planeta p= null;
+		
+		for (int i = 0; i < this.planetas.length && p == null; i++) {
+			if (this.planetas[i].getNombre().equalsIgnoreCase(nombre)) {
+				p = this.planetas[i];
+			}
+		}
+		
+		return p;
+	}
+	
+	/**
+	 * Simula coger una carta de nave. Devuelve la carta escogida 
+	 * y la reemplaza por una nueva aleatoria
+	 * @param nave La carta a "comprar"
+	 * @return la carta elegida, o null si la carta no estaba en el array
+	 */
+	public Nave comprarCartaNave(Nave nave) {
+		Nave n = null;
+		
+		for (int i = 0; i < this.navesVenta.length && n == null; i++) {
+			if (this.navesVenta[i] == nave) {
+				n = this.navesVenta[i];
+				// Eliminamos esa carta y generamos otra
+				this.navesVenta[i] = this.generaCartaNaveAleatoria();
+			}
+		}
+		
+		return n;
+	}
+
 
 	@Override
 	public String toString() {

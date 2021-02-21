@@ -34,5 +34,10 @@ public class NaveAtaque extends Nave implements IAtacador {
 		
 		objetivo.serAtacado(this.poderAtaque);		
 	}
+	
+	@Override
+	public String toString() {
+		return super.toString() + ". Poder de ataque: " + this.poderAtaque;
+	}
 
 }

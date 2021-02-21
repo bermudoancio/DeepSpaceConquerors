@@ -60,6 +60,17 @@ public class Jugador implements Comparable<Jugador> {
 		return eliminado;
 	}
 	
-	
+	/**
+	 * Resta las unidades de oro al saldo del jugador
+	 * @param unidadesOro unidades de oro a restar al saldo
+	 * @throws JuegoException si el jugador no tiene suficientes unidades de oro
+	 */
+	public void pagarOro(int unidadesOro) throws JuegoException {
+		if (this.unidadesOro < unidadesOro) {
+			throw new JuegoException("El jugador no tiene oro suficiente");
+		}
+		
+		this.unidadesOro -= unidadesOro;
+	}
 
 }

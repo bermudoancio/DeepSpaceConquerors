@@ -20,12 +20,24 @@ public class NaveTransporte extends Nave {
 		
 	}
 	
+	/**
+	 * Asigna la capacidad de transporte después de lanzar el dado.
+	 * @param capacidad la capacidad de transporte de la nave
+	 * @throws InvalidValueException Si la capacidad es 0 o negativo
+	 */
 	public void setCapacidad(int capacidad) throws InvalidValueException {
 		if (this.capacidad <= 0) {
 			throw new InvalidValueException("La capacidad de la nave debe ser de al menos 1 ocupante");
 		}
 		
 		this.capacidad = capacidad;
+	}
+	
+	/**
+	 * Resetea la capacidad a 0. Normalmente debido a una acción cancelada
+	 */
+	public void resetCapacidad() {
+		this.capacidad = 0;
 	}
 
 
@@ -35,6 +47,21 @@ public class NaveTransporte extends Nave {
 	 */
 	public void mejorar() {
 		this.capacidad *= NaveTransporte.MEJORA_NAVE_TRANSPORTE;		
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(super.toString());
+		sb.append(". Capacidad de transporte: ");
+		
+		if (this.capacidad == 0) {
+			sb.append("lanzar dado para ver");
+		}
+		else {
+			sb.append(this.capacidad).append(" pasajeros");
+		}
+		
+		return sb.toString();
 	}
 
 }

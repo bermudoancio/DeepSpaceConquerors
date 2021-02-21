@@ -37,5 +37,20 @@ public class NaveCarga extends Nave {
 	public int getCapacidadCarga() {
 		return this.capacidadCarga;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(super.toString());
+		sb.append(". Capacidad de transporte: ");
+		
+		if (this.capacidadCarga == 0) {
+			sb.append("lanzar dado para ver");
+		}
+		else {
+			sb.append(this.capacidadCarga).append(" materias");
+		}
+		
+		return sb.toString();
+	}
 
 }

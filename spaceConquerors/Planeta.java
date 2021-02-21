@@ -3,6 +3,7 @@ package spaceConquerors;
 public class Planeta implements IAtacable {
 	
 	public static final int NUM_MAX_MINAS = 10;
+	public static final int NUM_MAX_NAVES_ORBITANDO = 100;
 	public static final int UNIDADES_PIEDRA_DEFAULT = 5;
 	public static final int UNIDADES_HIERRO_DEFAULT = 4;
 	public static final int UNIDADES_COMBUSTIBLE_DEFAULT = 2;
@@ -33,6 +34,9 @@ public class Planeta implements IAtacable {
 	private Mina[] minas;
 	private EscudoProtector escudo;
 	
+	// Las naves que orbitan un planeta
+	private Nave[] navesOrbitando;
+	
 	// Variables necesarias para determinar la primera conquista
 	/*
 	 * Lista en la que se incluirá a todos aquellos jugadores que,
@@ -60,6 +64,9 @@ public class Planeta implements IAtacable {
 		
 		// Inicializamos el array de minas
 		this.minas = new Mina[Planeta.NUM_MAX_MINAS];
+		
+		// Inicializamos el array de naves orbitando
+		this.navesOrbitando = new Nave[Planeta.NUM_MAX_NAVES_ORBITANDO];
 		
 	}
 
@@ -160,6 +167,62 @@ public class Planeta implements IAtacable {
 		return escudo;
 	}
 	
+	/**
+	 * Devuelve el número de minas activas en el planeta
+	 * @return el número de minas activas en el 
+	 */
+	private int getNumeroMinasActivas() {
+		int minas = 0;
+		
+		for (Mina m: this.minas) {
+			if (m != null) {
+				minas++;
+			}
+		}
+		
+		return minas;
+	}
+	
+	/**
+	 * Añade una nave a la órbita del planeta
+	 * @param n La nueva nave
+	 * @throws JuegoException Si la nave no puede añadirse a la órbita
+	 */
+	public void addNaveOrbitando(Nave n) throws JuegoException {
+		boolean added = false;
+		
+		for (int i = 0; i < this.navesOrbitando.length && !added; i++) {
+			if (this.navesOrbitando[i] == null) {
+				this.navesOrbitando[i] = n;
+				added = true;
+			}
+		}
+		
+		if (!added) {
+			throw new JuegoException("No se puede añadir la nave");
+		}
+	}
+	
+	/**
+	 * Elimina una nave de la órbita de un planeta
+	 * @param n la nave a eliminar
+	 * @throws JuegoException Si la nave no orbitaba dicho planeta
+	 */
+	public void deleteNaveOrbitando(Nave n) throws JuegoException {
+		boolean deleted = false;
+		
+		for (int i = 0; i < this.navesOrbitando.length && !deleted; i++) {
+			if (this.navesOrbitando[i] == n) {
+				this.navesOrbitando[i] = null;
+				deleted = true;
+			}
+		}
+		
+		if (!deleted) {
+			throw new JuegoException("La nave no está orbitando este planeta");
+		}
+	}
+	
 	
 	@Override
 	public String toString() {
@@ -206,18 +269,6 @@ public class Planeta implements IAtacable {
 		sb.append(System.lineSeparator()).append("]").append(System.lineSeparator());
 		
 		return sb.toString();
-	}
-	
-	private int getNumeroMinasActivas() {
-		int minas = 0;
-		
-		for (Mina m: this.minas) {
-			if (m != null) {
-				minas++;
-			}
-		}
-		
-		return minas;
 	}
 
 }

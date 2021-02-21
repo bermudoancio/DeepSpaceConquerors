@@ -1,5 +1,7 @@
 package main;
 
+import java.util.Arrays;
+
 import spaceConquerors.*;
 import utils.UserDataCollector;
 
@@ -25,6 +27,8 @@ public class PrincipalJuego {
 	public void comenzarPartida() {
 		// Asignamos los jugadores
 		this.asignarJugadores();
+		// Asignamos aleatoriamente un planeta a cada jugador
+		this.t.asignacionInicial();
 		Jugador[] jugadores = this.t.getJugadores();
 		
 		// Turno de decidir quién empieza
@@ -36,7 +40,16 @@ public class PrincipalJuego {
 		
 		while (ronda <= PrincipalJuego.NUMERO_RONDAS && !juegoTerminado) {
 			// Cada vuelta del bucle será una ronda
+			System.out.println();
+			System.out.println();
+			System.out.println("#########################################################");
+			System.out.println("#########################################################");
 			System.out.println("Ronda " + this.ronda + " de " + PrincipalJuego.NUMERO_RONDAS);
+			System.out.println("#########################################################");
+			System.out.println("#########################################################");
+			System.out.println();
+			System.out.println();
+			
 
 			// Imprimimos la información del tablero
 			System.out.println(this.t);
@@ -49,6 +62,11 @@ public class PrincipalJuego {
 			
 			while (!finRonda) {
 				if (!jugadores[indiceJugador].isEliminado()) {
+					System.out.println();
+					System.out.println();
+					System.out.println("#########################################################");
+					System.out.println();
+					System.out.println();
 					System.out.println("Turno del jugador " + jugadores[indiceJugador].getNombre());
 					
 					int accionesRealizadas = 1;
@@ -60,8 +78,30 @@ public class PrincipalJuego {
 						
 						switch(accionElegida) {
 						case 1: // Comprar carta de nave
+							try {
+								this.comprarCartaNave(jugadores[indiceJugador]);
+							} 
+							catch (CancelarException e) {
+								// La acción no se ha realizado.
+								if (!e.getMessage().isBlank()) {
+									System.out.println(e.getMessage());
+								}
+								// No le contaremos la acción
+								continue;
+							}
 							break;
 						case 2: // Comprar carta de construcción
+							try {
+								this.comprarCartaConstruccion(jugadores[indiceJugador]);
+							} 
+							catch (CancelarException e) {
+								// La acción no se ha realizado.
+								if (!e.getMessage().isBlank()) {
+									System.out.println(e.getMessage());
+								}
+								// No le contaremos la acción
+								continue;
+							}
 							break;
 						case 3: // Coger carta de materia prima
 							break;
@@ -82,6 +122,9 @@ public class PrincipalJuego {
 						
 						accionesRealizadas++;
 					}
+					
+					// Imprimimos la información del tablero
+					System.out.println(this.t);
 					
 				}
 				
@@ -261,6 +304,136 @@ public class PrincipalJuego {
 		System.out.println("9. Pasar turno");
 		
 		return UserDataCollector.getEnteroMinMax("¿Qué quieres hacer?", 1, 9);
+	}
+	
+	/*
+	 * ###########################################################
+	 * #########################ACCIONES##########################
+	 * ###########################################################
+	 */
+	
+	/**
+	 * Realiza la acción de comprar una carta de nave
+	 * @param j
+	 * @throws CancelarException
+	 */
+	private void comprarCartaNave(Jugador j) throws CancelarException {
+		// Lo primero será comprobar si el jugador tiene oro suficiente
+		this.mostrarCartasNaveVisibles();
+		int cartaEscogida = UserDataCollector.getEnteroMinMax("Elige el número de la carta, ó 0 para cancelar", 0, this.t.getNavesVenta().length);
+		if (cartaEscogida == 0) {
+			throw new CancelarException();
+		}
+		else {
+			// El jugador ve los índices con base 1. Lo devolvemos a base 0
+			cartaEscogida--;
+			if (j.getUnidadesOro() < this.t.getNavesVenta()[cartaEscogida].getPrecio()) {
+				throw new CancelarException("No tienes suficiente oro para comprar la carta");
+			}
+			else {
+				// Compra la carta: restamos el dinero y preguntamos a qué planeta asignarla
+				Nave nave = null;
+				Planeta p = null;
+				
+				try {
+					nave = this.t.getNavesVenta()[cartaEscogida];
+										
+					/*
+					 * Ahora tenemos que asignar la capacidad de carga o pasajeros
+					 * si la nave es de transporte o carga
+					 */
+					if (nave instanceof NaveCarga) {
+						UserDataCollector.getTecla("Ahora decidiremos la capacidad de carga. Tira el dado pulsando enter");
+						int resultadoLanzarDado = this.t.lanzarDado('A');
+						System.out.println("La capacidad de carga de tu nave será de " + resultadoLanzarDado);
+						((NaveCarga) nave).setCapacidadCarga(resultadoLanzarDado);
+					}
+					else if (nave instanceof NaveTransporte) {
+						UserDataCollector.getTecla("Ahora decidiremos la capacidad de pasajeros. Tira el dado pulsando enter");
+						int resultadoLanzarDado = this.t.lanzarDado('C');
+						System.out.println("La capacidad de pasajeros de tu nave será de " + resultadoLanzarDado);
+						((NaveTransporte) nave).setCapacidad(resultadoLanzarDado);
+					}
+					// Las naves de ataque no tienen elementos aleatorios
+					
+					// Preguntamos a qué planeta la mandamos orbitar
+					p = this.preguntaPlanetaAsignar(j);
+					this.asignarNaveAPlaneta(nave, p);
+					
+					j.pagarOro(this.t.getNavesVenta()[cartaEscogida].getPrecio());
+					t.comprarCartaNave(nave);
+					// Asignamos la carta al jugador
+					nave.asignarAJugador(j);
+					
+					// Avisamos al jugador de que todo ha ido OK
+					System.out.println("Tu nueva nave ya está orbitando el planeta " + p.getNombre());
+				} 
+				catch (JuegoException e) {
+					throw new CancelarException(e.getMessage());
+				} 
+				catch (InvalidValueException e) {
+					// En este catch entraría solo si el resultado de lanzar el dado fuese 0 o negativo
+					throw new CancelarException(e.getMessage());
+				}
+			}
+		}
+	}
+	
+	
+	private void comprarCartaConstruccion(Jugador jugador) throws CancelarException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/*
+	 * ###########################################################
+	 * ####################FIN  ACCIONES##########################
+	 * ###########################################################
+	 */
+	
+	/**
+	 * Asigna una nave a la órbita de un planeta
+	 * @param nave la nave a asignar
+	 * @param p el planeta que orbitará
+	 * @throws JuegoException si la nave no puede asignarse a dicho planeta
+	 */
+	private void asignarNaveAPlaneta(Nave nave, Planeta p) throws JuegoException {
+		p.addNaveOrbitando(nave);
+	}
+
+	/**
+	 * Muestra las cartas de nave que hay en venta en este momento
+	 */
+	private void mostrarCartasNaveVisibles() {
+		System.out.println("Estas son las naves a la venta ahora mismo");
+		int i = 1;
+		for (Nave n: this.t.getNavesVenta()) {
+			System.out.println(i++ + ": " + n);
+		}
+	}
+	
+	/**
+	 * Pregunta al usuario a qué planeta asignaremos la nave
+	 * @return
+	 */
+	private Planeta preguntaPlanetaAsignar(Jugador j) {
+		Planeta p = null;
+		String nombrePlaneta = null;
+		
+		boolean ok = false;
+		while (!ok) {
+			System.out.println("Estos son tus planetas");
+			System.out.println(Arrays.toString(t.getPlanetasDeJugador(j)));
+			nombrePlaneta = UserDataCollector.getString("¿A qué planeta quieres asignar la nave?");
+			
+			// Tenemos que comprobar que el planeta existe y que es suyo
+			p = t.getPlaneta(nombrePlaneta);
+			if (p != null && p.getConquistador() == j) {
+				ok = true;
+			}
+		}
+		
+		return p;
 	}
 
 }
