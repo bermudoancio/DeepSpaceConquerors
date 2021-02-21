@@ -3,7 +3,7 @@ package spaceConquerors;
 public class EscudoProtector extends Construccion implements IAtacable, IReparable {
 	
 	private static final int PERSONAS_ASIGNADAS_ESCUDO_PROTECTOR = 15;
-	private static final int PRECIO_CARTA_ESCUDO_PROTECTOR = 5;
+	public static final int PRECIO_CARTA_ESCUDO_PROTECTOR = 5;
 	private static final int PUNTOS_DEFENSA_INICIAL_ESCUDO_PROTECTOR = 20;
 	private static final int PUNTOS_REPARACION_ESCUDO_PROTECTOR = 15;
 	
@@ -15,14 +15,8 @@ public class EscudoProtector extends Construccion implements IAtacable, IReparab
 	 * @param defensaExtra Los puntos extras que se sumarán a la protección por defecto del escudo
 	 * @throws InvalidValueException Si los puntos de defensa extra son negativos
 	 */
-	public EscudoProtector(String nombre, int defensaExtra) throws InvalidValueException {
+	public EscudoProtector(String nombre) throws InvalidValueException {
 		super(nombre, EscudoProtector.PRECIO_CARTA_ESCUDO_PROTECTOR, EscudoProtector.PERSONAS_ASIGNADAS_ESCUDO_PROTECTOR);
-		
-		if (defensaExtra < 0) {
-			throw new InvalidValueException("No puedes restar puntos a la defensa inicial del escudo");
-		}
-		
-		this.puntosDefensa = PUNTOS_DEFENSA_INICIAL_ESCUDO_PROTECTOR + defensaExtra;
 	}
 
 	@Override
@@ -48,5 +42,19 @@ public class EscudoProtector extends Construccion implements IAtacable, IReparab
 		}
 		
 	}
+
+	/**
+	 * @param puntosDefensa los puntos de defensa extra al lanzar el dado
+	 * @throws InvalidValueException 
+	 */
+	public void setPuntosDefensa(int puntosDefensa) throws InvalidValueException {
+		if (puntosDefensa < 0) {
+			throw new InvalidValueException("No puedes restar puntos a la defensa inicial del escudo");
+		}
+		
+		this.puntosDefensa = PUNTOS_DEFENSA_INICIAL_ESCUDO_PROTECTOR + puntosDefensa;
+	}
+	
+	
 
 }

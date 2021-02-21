@@ -60,7 +60,7 @@ public class PrincipalJuego {
 			 */
 			boolean finRonda = false;
 			
-			while (!finRonda) {
+			while (!finRonda && !juegoTerminado) {
 				if (!jugadores[indiceJugador].isEliminado()) {
 					System.out.println();
 					System.out.println();
@@ -83,7 +83,7 @@ public class PrincipalJuego {
 							} 
 							catch (CancelarException e) {
 								// La acción no se ha realizado.
-								if (!e.getMessage().isBlank()) {
+								if (e.getMessage() != null && !e.getMessage().isBlank()) {
 									System.out.println(e.getMessage());
 								}
 								// No le contaremos la acción
@@ -96,7 +96,7 @@ public class PrincipalJuego {
 							} 
 							catch (CancelarException e) {
 								// La acción no se ha realizado.
-								if (!e.getMessage().isBlank()) {
+								if (e.getMessage() != null && !e.getMessage().isBlank()) {
 									System.out.println(e.getMessage());
 								}
 								// No le contaremos la acción
@@ -119,6 +119,8 @@ public class PrincipalJuego {
 							break;
 							
 						}
+						
+						juegoTerminado = this.checkJuegoTerminado();
 						
 						accionesRealizadas++;
 					}
@@ -306,6 +308,40 @@ public class PrincipalJuego {
 		return UserDataCollector.getEnteroMinMax("¿Qué quieres hacer?", 1, 9);
 	}
 	
+	/**
+	 * Comprueba si un jugador ha conquistado todos los planetas
+	 * @return si algún jugador ha conquistado todos los planetas
+	 */
+	private boolean checkJuegoTerminado() {
+		/*
+		 * Este método comprobará si un jugador ha ganado el juego.
+		 * Para ello, ha tenido que conquistar todos los planetas.
+		 */
+		Jugador j = null;
+		boolean mismoJugador = true;
+		
+		for (int i = 0; i < this.t.getPlanetas().length && mismoJugador; i++) {
+			
+			if (j == null) {
+				// j todavía no tiene valor, le ponemos el del primer planeta
+				j = this.t.getPlanetas()[i].getConquistador();
+			}
+			
+			if (this.t.getPlanetas()[i].getConquistador() == null) {
+				// hay un planeta no conquistado
+				mismoJugador = false;
+			}
+			else {
+				// si el jugador no es el conquistador de este planeta
+				if (!this.t.getPlanetas()[i].getConquistador().equals(j)) {
+					mismoJugador = false;
+				}
+			}
+		}
+		
+		return mismoJugador;
+	}
+	
 	/*
 	 * ###########################################################
 	 * #########################ACCIONES##########################
@@ -380,9 +416,89 @@ public class PrincipalJuego {
 	}
 	
 	
-	private void comprarCartaConstruccion(Jugador jugador) throws CancelarException {
-		// TODO Auto-generated method stub
-		
+	private void comprarCartaConstruccion(Jugador j) throws CancelarException {
+		// Lo primero será comprobar si el jugador tiene oro suficiente
+		this.mostrarCartasConstruccion();
+		int cartaEscogida = UserDataCollector.getEnteroMinMax("Elige el número de la carta, ó 0 para cancelar", 0, 2);
+		if (cartaEscogida == 0) {
+			throw new CancelarException();
+		}
+		else {
+			Construccion c = null;
+			int precioCarta = 0;
+
+			try {
+				// Ponemos el precio de la carta acorde a la construcción
+				switch(cartaEscogida) {
+				case 1: //Mina
+					precioCarta = Mina.PRECIO_CARTA_MINA;
+					c = new Mina("Mina");
+					break;
+				case 2: //Escudo protector
+					precioCarta = EscudoProtector.PRECIO_CARTA_ESCUDO_PROTECTOR;
+					c = new EscudoProtector("Escudo protector");
+					break;
+				}
+			}
+			catch (InvalidValueException e) {
+				throw new CancelarException(e.getMessage());
+			}
+			
+			
+			if (j.getUnidadesOro() < precioCarta) {
+				throw new CancelarException("No tienes suficiente oro para comprar la carta");
+			}
+			else {
+				if (c instanceof Mina) {				
+					
+					String materia = UserDataCollector.getStringDeOpciones("Selecciona una materia prima", TMateriales.getValuesAsString());
+					try {
+						((Mina) c).setMaterial(materia);
+					} 
+					catch (InvalidValueException e) {
+						throw new CancelarException(e.getMessage());
+					}
+					
+					int cantidadAMinar = 2;
+					if (!materia.equalsIgnoreCase("Oro")) {
+						// Si no minamos oro, lanzamos el dado para ver cuánto minamos
+						UserDataCollector.getTecla("Ahora decidiremos la cantidad que minará en cada turno. Tira el dado pulsando enter");
+						cantidadAMinar = this.t.lanzarDado('A');
+						try {
+							((Mina) c).setCantidadExtraidaTurno(cantidadAMinar);
+						} 
+						catch (InvalidValueException e) {
+							// No entrará por aquí porque los dados tienen números positivos
+							throw new CancelarException(e.getMessage());
+						}
+					}					
+					
+					System.out.println("Una vez que la asignes a un planeta, la mina va a minar en cada turno " + cantidadAMinar + " unidades de " + materia);
+				}
+				else if (c instanceof EscudoProtector) {
+					UserDataCollector.getTecla("Vamos a ver cuántos puntos extra de escudo sumamos. Tira el dado pulsando enter");
+					int puntosDefensaExtra = this.t.lanzarDado('A');
+					try {
+						((EscudoProtector) c).setPuntosDefensa(puntosDefensaExtra);
+					} 
+					catch (InvalidValueException e) {
+						// No entrará por aquí porque los dados tienen números positivos
+						throw new CancelarException(e.getMessage());
+					}
+					
+					System.out.println("El escudo tendrá " + ((EscudoProtector) c).getPuntosDefensa() + " puntos de defensa en total. Pero antes debes asignarlo a un planeta");
+				}
+				
+				// Sea una mina o un escudo, añadimos la carta al mazo del usuario y la pagamos
+				try {
+					j.pagarOro(c.getPrecio());
+					j.addCartaConstruccion(c);
+				} 
+				catch (JuegoException e) {
+					throw new CancelarException(e.getMessage());
+				}
+			}
+		}
 	}
 
 	/*
@@ -410,6 +526,15 @@ public class PrincipalJuego {
 		for (Nave n: this.t.getNavesVenta()) {
 			System.out.println(i++ + ": " + n);
 		}
+	}
+	
+	/**
+	 * Muestra las cartas de nave que hay en venta en este momento
+	 */
+	private void mostrarCartasConstruccion() {
+		System.out.println("Las cartas de construcción son las siguientes:");
+		System.out.println("1. Mina");
+		System.out.println("2. Escudo protector");
 	}
 	
 	/**

@@ -2,12 +2,15 @@ package spaceConquerors;
 
 public class Jugador implements Comparable<Jugador> {
 	
-	private static final int UNIDADES_ORO_INICIALES = 3; 
+	private static final int UNIDADES_ORO_INICIALES = 5;
+	private static final int CARTAS_CONSTRUCCION_MAX = 100;
 
 	private int unidadesOro;
 	private int puntuacion;
 	private String nombre;
 	private boolean eliminado;
+	
+	private Construccion[] cartasConstruccion;
 	
 	public Jugador(String nombre) throws InvalidValueException {
 		if (nombre.isBlank()) {
@@ -17,6 +20,9 @@ public class Jugador implements Comparable<Jugador> {
 		this.nombre = nombre;
 		this.unidadesOro = Jugador.UNIDADES_ORO_INICIALES;
 		this.eliminado = false;
+		
+		// Inicializamos el array de cartas
+		this.cartasConstruccion = new Construccion[Jugador.CARTAS_CONSTRUCCION_MAX];
 	}
 
 	/**
@@ -71,6 +77,43 @@ public class Jugador implements Comparable<Jugador> {
 		}
 		
 		this.unidadesOro -= unidadesOro;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		boolean eq = true;
+		if (obj == null) {
+			eq = false;
+		}
+		else if (obj.getClass() != this.getClass()) {
+			eq = false;
+		}
+		else if (!this.getNombre().equalsIgnoreCase(((Jugador)obj).getNombre())) {
+			eq = false;
+		}
+		
+		return eq;
+	}
+	
+	/**
+	 * Añade una carta de construcción al mazo del jugador
+	 * @param carta la carta a añadir
+	 * @throws JuegoException si no se puede añadir la carta
+	 */
+	public void addCartaConstruccion(Construccion carta) throws JuegoException {
+		boolean added = false;
+		
+		for (int i = 0; i < this.cartasConstruccion.length && !added; i++) {
+			if (this.cartasConstruccion[i] == null) {
+				this.cartasConstruccion[i] = carta;
+				added = true;
+			}
+		}
+		
+		if (!added) {
+			throw new JuegoException("No se puede añadir la construcción");
+		}
+		
 	}
 
 }

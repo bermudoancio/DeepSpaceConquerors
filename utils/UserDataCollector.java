@@ -1,5 +1,6 @@
 package utils;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class UserDataCollector {
@@ -61,6 +62,32 @@ public class UserDataCollector {
 		}
 		
 		return cadena;
+	}
+	
+	/**
+	 * Muestra un mensaje por pantalla y solicita una cadena que debe
+	 * estar comprendida entre una serie de opciones válidas
+	 * @param mensaje El mensaje que se mostrará
+	 * @param opciones Las opciones aceptadas
+	 * @return La cadena introducida por el usuario
+	 */
+	public static String getStringDeOpciones(String mensaje, String[] opciones) {
+		boolean ok = false;
+		String opcionElegida = null;
+		
+		while (!ok) {
+			System.out.println(Arrays.toString(opciones));
+			opcionElegida = UserDataCollector.getString(mensaje);
+			
+			for (int i = 0; i < opciones.length && !ok; i++) {
+				if (opcionElegida.equalsIgnoreCase(opciones[i])) {
+					ok = true;
+				}
+			}
+		
+		}
+		
+		return opcionElegida;
 	}
 	
 	/**
