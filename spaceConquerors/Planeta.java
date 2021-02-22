@@ -223,23 +223,52 @@ public class Planeta implements IAtacable {
 		}
 	}
 	
+	/**
+	 * Añade las unidades pasadas como parámetro a las cantidades existentes del material.
+	 * Solo se admiten hierro, piedra y combustible. Cualquier otro valor provoca el 
+	 * lanzamiento de la excepción InvalidValueException
+	 * @param material el material que queremos añadir
+	 * @param unidades la cantidad de unidades de material que añadiremos
+	 * @throws InvalidValueException Si intentamos añadir 0 ó un número negativo de unidades, o un material diferente de los aceptados
+	 */
+	public void addUnidades(TMateriales material, int unidades) throws InvalidValueException {
+		if (unidades <= 0) {
+			throw new InvalidValueException("No puedes añadir 0 o un número negativo de unidades");
+		}
+		
+		// Vamos a ver qué material añadimos
+		if (material.equals(TMateriales.HIERRO)) {
+			this.unidadesHierro += unidades;
+		}
+		else if (material.equals(TMateriales.PIEDRA)) {
+			this.unidadesPiedra += unidades;
+		}
+		else if (material.equals(TMateriales.COMBUSTIBLE)) {
+			this.unidadesCombustible += unidades;
+		}
+		else {
+			throw new InvalidValueException("No puedes añadir al planeta este material: " + material.toString());
+		}
+	}
+	
 	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("[#").append(this.getNombre()).append(System.lineSeparator())
+		sb.append("{").append(System.lineSeparator())
+		.append(this.getNombre()).append(System.lineSeparator())
 		.append("Conquistador: ").append(this.getConquistador() == null ? "No conquistado" : this.getConquistador().getNombre())
 		.append(". Habitantes: ").append(this.getNumHabitantes())
 		.append(". Materias primas: ")
-		.append("{Piedra: ").append(this.getUnidadesPiedra())
+		.append("[Piedra: ").append(this.getUnidadesPiedra())
 		.append(". Hierro: ").append(this.getUnidadesHierro())
 		.append(". Combustible: ").append(this.getUnidadesCombustible())
-		.append("}").append(System.lineSeparator())
+		.append("]").append(System.lineSeparator())
 		.append("Minas: ");
 		
 		if (this.getNumeroMinasActivas() > 0) {
-			sb.append("{");
+			sb.append("[[");
 			int numMinas = 1;
 			for (Mina m: this.minas) {
 				if (m != null) {
@@ -250,23 +279,23 @@ public class Planeta implements IAtacable {
 				}
 			}
 			
-			sb.append("}").append(System.lineSeparator());
+			sb.append("]]").append(System.lineSeparator());
 		}
 		else {
-			sb.append("{Sin minas activas}");
+			sb.append("[[Sin minas activas]]");
 		}
 		
 		// Por último, la información del escudo protector
 		sb.append(System.lineSeparator()).append("Escudo protector: ");
 		
 		if (this.getEscudo() != null) {
-			sb.append("{").append(this.getEscudo().getPuntosDefensa())
-			.append(" puntos de defensa restantes}");
+			sb.append("[[").append(this.getEscudo().getPuntosDefensa())
+			.append(" puntos de defensa restantes]]");
 		}
 		else {
-			sb.append("{Sin escudo protector}");
+			sb.append("[[Sin escudo protector]]");
 		}
-		sb.append(System.lineSeparator()).append("]").append(System.lineSeparator());
+		sb.append(System.lineSeparator()).append("}").append(System.lineSeparator());
 		
 		return sb.toString();
 	}

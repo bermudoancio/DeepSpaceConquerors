@@ -382,6 +382,8 @@ public class PrincipalJuego {
 	 */
 	private void comprarCartaNave(Jugador j) throws CancelarException {
 		// Lo primero será comprobar si el jugador tiene oro suficiente
+		// Vamos a mostrar al usuario el saldo que tiene
+		System.out.println("Ahora mismo tienes " + j.getUnidadesOro() + " unidades de oro disponibles");
 		this.mostrarCartasNaveVisibles();
 		int cartaEscogida = UserDataCollector.getEnteroMinMax("Elige el número de la carta, ó 0 para cancelar", 0, this.t.getNavesVenta().length);
 		if (cartaEscogida == 0) {

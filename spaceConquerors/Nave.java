@@ -58,7 +58,7 @@ public abstract class Nave extends Carta implements IAtacable, IReparable, IMejo
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("## Nave ");
+		StringBuilder sb = new StringBuilder("## ");
 		sb.append(this.getNombre())
 		.append(". Precio: ").append(this.getPrecio())
 		.append(". Puntos de defensa: ").append(this.getPuntosDefensa());

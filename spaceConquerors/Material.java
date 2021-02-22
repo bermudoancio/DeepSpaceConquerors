@@ -3,6 +3,7 @@ package spaceConquerors;
 public class Material extends Carta {
 	
 	private static final int PRECIO_CARTA_MATERIALES = 0; 
+	public static final int CANTIDAD_MATERIALES_CARTA = 1;
 	
 	private TMateriales tipoMaterial;
 

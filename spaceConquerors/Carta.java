@@ -33,6 +33,13 @@ public abstract class Carta {
 		return precio;
 	}
 	
-	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("## ");
+		sb.append(this.getNombre())
+		.append(". Precio: ").append(this.getPrecio());
+		
+		return sb.toString();
+	}
 
 }

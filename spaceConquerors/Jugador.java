@@ -115,5 +115,19 @@ public class Jugador implements Comparable<Jugador> {
 		}
 		
 	}
+	
+	/**
+	 * Añade las unidades de oro indicadas al "monedero" del usuario
+	 * @param oro la cantidad de oro a añadir
+	 * @throws InvalidValueException Si la cantidad es 0 o un número negativo
+	 */
+	public void addOro(int oro) throws InvalidValueException {
+		if (oro <= 0) {
+			throw new InvalidValueException("No puedes añadir una cantidad de oro negativa o 0");
+		}
+		else {
+			this.unidadesOro += oro;
+		}
+	}
 
 }

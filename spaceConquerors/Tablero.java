@@ -341,6 +341,28 @@ public class Tablero {
 		
 		return n;
 	}
+	
+	/**
+	 * Genera aleatoriamente una carta de material y la devuelve. Como nombre, llevará "Material", 
+	 * y como tipo de material, uno escogido al azar. 
+	 * @return una carta de material generada aleatoriamente
+	 */
+	public Material cogerCartaMaterial() {
+		Material m = null;
+		/*
+		 * Tenemos que generar aleatoriamente una carta de material
+		 * Para ello, generaremos un número al azar entre el número de materiales que haya
+		 */
+		Random r = new Random();
+		try {
+			m = new Material("Material" , TMateriales.getValuesAsString()[r.nextInt(TMateriales.values().length)]);
+		} 
+		catch (InvalidValueException e) {
+			// El tipo de material ha sido escogido al azar entre los valores correctos, por lo que no hay problema
+		}
+		
+		return m;
+	}
 
 
 	@Override
