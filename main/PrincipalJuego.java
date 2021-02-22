@@ -73,6 +73,8 @@ public class PrincipalJuego {
 					int accionElegida = 0;
 					
 					while (accionesRealizadas <= 2 && accionElegida != 9) {
+						System.out.println();
+						System.out.println();
 						System.out.println("Jugada " + accionesRealizadas + " de 2");
 						accionElegida = this.muestraMenuAcciones();
 						
@@ -104,6 +106,17 @@ public class PrincipalJuego {
 							}
 							break;
 						case 3: // Coger carta de materia prima
+							try {
+								this.cogerCartaMateriaPrima(jugadores[indiceJugador]);
+							} 
+							catch (CancelarException e) {
+								// La acción no se ha realizado.
+								if (e.getMessage() != null && !e.getMessage().isBlank()) {
+									System.out.println(e.getMessage());
+								}
+								// No le contaremos la acción
+								continue;
+							}
 							break;
 						case 4: // Construir
 							break;
@@ -114,8 +127,6 @@ public class PrincipalJuego {
 						case 7: // Mejorar una nave
 							break;
 						case 8: // Reparar 
-							break;
-						case 9: // Pasar turno
 							break;
 							
 						}
@@ -137,12 +148,13 @@ public class PrincipalJuego {
 				}
 			}
 			
+			// TODO: Calcular la puntuación de todos los usuarios
 			ronda++;
 		}
 		
 		System.out.println("Fin del juego");
 	}
-	
+
 	/**
 	 * Pregunta el número de jugadores y sus datos. Luego los añade al tablero.
 	 */
@@ -178,10 +190,20 @@ public class PrincipalJuego {
 		}
 	}
 	
+	/**
+	 * Pregunta cuántos jugadores van a jugar y devuelve el número introducido 
+	 * por el usuario, entre el mínimo y el máximo aceptados
+	 * @return
+	 */
 	private static int preguntarJugadores() {
 		return UserDataCollector.getEnteroMinMax("¿Cuántos jugadores van a jugar?", Tablero.MIN_JUGADORES, Tablero.MAX_JUGADORES);
 	}
 	
+	/**
+	 * Pregunta los datos necesarios para crear un jugador (básicamente el nombre) y devuelve un nuevo jugador con ese nombre
+	 * @param num el índice que ocuparía este jugador  (jugador 1, jugador 2...
+	 * @return un objeto jugador con el nombre introducido
+	 */
 	private static Jugador preguntaDatosJugador(int num) {
 		Jugador j = null;
 		try {
@@ -194,6 +216,11 @@ public class PrincipalJuego {
 		return j;
 	}
 	
+	
+	/**
+	 * Decide qué jugador empezará a jugar mediante lanzamientos de dados
+	 * @return el índice que ocupa el jugador que empieza en el array de jugadores
+	 */
 	private int decideQuienEmpieza() {
 			
 		System.out.println("Vamos a decidir qué jugador empezará a jugar");
@@ -415,7 +442,11 @@ public class PrincipalJuego {
 		}
 	}
 	
-	
+	/**
+	 * Realiza la acción de comprar una carta de construcción. Añade la carta al mazo del usuario
+	 * @param j
+	 * @throws CancelarException
+	 */
 	private void comprarCartaConstruccion(Jugador j) throws CancelarException {
 		// Lo primero será comprobar si el jugador tiene oro suficiente
 		this.mostrarCartasConstruccion();
@@ -444,7 +475,7 @@ public class PrincipalJuego {
 				throw new CancelarException(e.getMessage());
 			}
 			
-			
+			// Si no tiene dinero, cancelamos la acción
 			if (j.getUnidadesOro() < precioCarta) {
 				throw new CancelarException("No tienes suficiente oro para comprar la carta");
 			}
@@ -500,6 +531,59 @@ public class PrincipalJuego {
 			}
 		}
 	}
+	
+	
+	private void cogerCartaMateriaPrima(Jugador jugador) throws CancelarException {
+		Material cartaMaterial = t.cogerCartaMaterial();
+		
+		/*
+		 * Hay que hacer cosas diferentes dependiendo del tipo de material
+		 * Si es oro, directamente sumamos las unidades que sea (por defecto 1)
+		 * a la cantidad de oro del jugador.
+		 * Si es otro material, preguntamos el planeta al que quiere enviar 
+		 * dicho material.
+		 */
+		System.out.println("Has obtenido una carta de " + cartaMaterial.gettMaterial().toString());
+		
+		if (cartaMaterial.gettMaterial().equals(TMateriales.ORO)) {
+			// Si es oro, lo sumamos al "monedero" del jugador
+			try {
+				jugador.addOro(Material.CANTIDAD_MATERIALES_CARTA);
+			}
+			catch (InvalidValueException e) {
+				throw new CancelarException(e.getMessage());
+			}
+		}
+		else {
+			System.out.println(); // Línea en blanco para mejorar visibilidad
+			System.out.println("Estos son tus planetas:");
+			// Si no es oro, preguntaremos a qué planeta quiere añadirlo
+			Planeta[] planetasDeJugador = t.getPlanetasDeJugador(jugador);
+			
+			int i = 1;
+			for (Planeta p: planetasDeJugador) {
+				System.out.println(i++ + ": " + p);
+			}
+			
+			int indicePlanetaSeleccionado = UserDataCollector.getEnteroMinMax("Selecciona el índice del planeta al que quieres mandar la materia prima (0 para cancelar):", 0, planetasDeJugador.length);
+			
+			if (indicePlanetaSeleccionado == 0) {
+				// Si es coge la opción 0, cancelamos
+				throw new CancelarException();
+			}
+			else {
+				// El usuario ve los índices basados en 1, nosotros restamos 1 para basarlos en índice 0
+				Planeta planetaSeleccionado = planetasDeJugador[--indicePlanetaSeleccionado];
+				try {
+					planetaSeleccionado.addUnidades(cartaMaterial.gettMaterial(), Material.CANTIDAD_MATERIALES_CARTA);
+				} 
+				catch (InvalidValueException e) {
+					throw new CancelarException(e.getMessage());
+				}
+			}
+		}
+		
+	}
 
 	/*
 	 * ###########################################################
@@ -529,12 +613,18 @@ public class PrincipalJuego {
 	}
 	
 	/**
-	 * Muestra las cartas de nave que hay en venta en este momento
+	 * Muestra las cartas de construcción
 	 */
 	private void mostrarCartasConstruccion() {
 		System.out.println("Las cartas de construcción son las siguientes:");
-		System.out.println("1. Mina");
-		System.out.println("2. Escudo protector");
+		try {
+			System.out.println("1. " + new Mina("Mina"));
+			System.out.println("2. " + new EscudoProtector("Escudo protector"));
+		} 
+		catch (InvalidValueException e) {
+			// El nombre lo hemos escrito nosotros, por lo que la excepción no saltará
+		}
+		
 	}
 	
 	/**
