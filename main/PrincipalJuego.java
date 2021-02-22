@@ -8,6 +8,7 @@ import utils.UserDataCollector;
 public class PrincipalJuego {
 	
 	public static final int NUMERO_RONDAS = 9;
+	public static final int OPCION_PASAR_TURNO = 11;
 	
 	private Tablero t;
 	private int ronda;
@@ -123,12 +124,18 @@ public class PrincipalJuego {
 						case 5: // Mover nave de un planeta a otro
 							break;
 						case 6: // Atacar
+							this.atacar(jugadores[indiceJugador]);
 							break;
-						case 7: // Mejorar una nave
+						case 7: // Transportar carga
 							break;
-						case 8: // Reparar 
+						case 8: // Transportar personas
 							break;
-							
+						case 9: // Mejorar una nave
+							break;
+						case 10: // Reparar 
+							break;
+						case OPCION_PASAR_TURNO:
+							break;
 						}
 						
 						juegoTerminado = this.checkJuegoTerminado();
@@ -154,6 +161,7 @@ public class PrincipalJuego {
 		
 		System.out.println("Fin del juego");
 	}
+
 
 	/**
 	 * Pregunta el número de jugadores y sus datos. Luego los añade al tablero.
@@ -328,9 +336,11 @@ public class PrincipalJuego {
 		System.out.println("4. Construir");
 		System.out.println("5. Mover una nave de un planeta a otro");
 		System.out.println("6. Atacar");
-		System.out.println("7. Mejorar una nave");
-		System.out.println("8. Reparar");
-		System.out.println("9. Pasar turno");
+		System.out.println("7. Transportar carga");
+		System.out.println("8. Transportar personas");
+		System.out.println("9. Mejorar una nave");
+		System.out.println("10. Reparar");
+		System.out.println("11. Pasar turno");
 		
 		return UserDataCollector.getEnteroMinMax("¿Qué quieres hacer?", 1, 9);
 	}
@@ -534,7 +544,14 @@ public class PrincipalJuego {
 		}
 	}
 	
-	
+	/**
+	 * Coge una carta de materia prima, que el tablero generará al azar. Si la carta es
+	 * de oro, la añadirá al "monedero" del usuario. Si es de otra materia prima, preguntará
+	 * a qué planeta (de los suyos) añadirla, y sumará 1 unidad a las reservas de dicha 
+	 * materia en ese planeta.
+	 * @param jugador el jugador que coge la carta
+	 * @throws CancelarException Si el jugador cancela
+	 */
 	private void cogerCartaMateriaPrima(Jugador jugador) throws CancelarException {
 		Material cartaMaterial = t.cogerCartaMaterial();
 		
@@ -584,6 +601,12 @@ public class PrincipalJuego {
 				}
 			}
 		}
+		
+	}
+	
+	
+	private void atacar(Jugador jugador) {
+		// TODO Auto-generated method stub
 		
 	}
 
