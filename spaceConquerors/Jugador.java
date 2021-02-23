@@ -39,6 +39,14 @@ public class Jugador implements Comparable<Jugador> {
 		return this.puntuacion;
 	}
 	
+		
+	/**
+	 * @param puntuacion la nueva puntuación 
+	 */
+	public void setPuntuacion(int puntuacion) {
+		this.puntuacion = puntuacion;
+	}
+
 	/**
 	 * @return el nombre del jugador
 	 */
@@ -128,6 +136,14 @@ public class Jugador implements Comparable<Jugador> {
 		else {
 			this.unidadesOro += oro;
 		}
+	}
+	
+	@Override
+	/**
+	 * Devuelve el usuario convertido a texto en formato: NombreJugador: X puntos
+	 */
+	public String toString() {
+		return this.getNombre() + ": " + this.getPuntuacion() + " puntos.";
 	}
 
 }

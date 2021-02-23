@@ -6,12 +6,22 @@ import utils.Dado;
 
 public class Tablero {
 	
-	// Aplicamos el patrón singleton
-	private static Tablero tablero; 
-	
 	public static final int MIN_JUGADORES = 2;
 	public static final int MAX_JUGADORES = 4;
 	public static final int NAVES_A_LA_VENTA = 4;
+
+	public static final int PUNTOS_POR_PLANETA = 10;
+	public static final int PUNTOS_POR_MINA = 2;
+	public static final int PUNTOS_POR_ESCUDO = 3;
+	public static final int PUNTOS_POR_NAVE = 2;
+	public static final int PUNTOS_POR_X_HABITANTES = 1;
+	public static final int PUNTOS_POR_ORO = 1;
+	public static final int PUNTOS_POR_X_OTRAS_MATERIAS = 1;
+	public static final int NUMERO_HABITANTES_PARA_PUNTUAR = 20;
+	public static final int NUMERO_MATERIAS_PARA_PUNTUAR = 3;
+	
+	// Aplicamos el patrón singleton
+	private static Tablero tablero; 
 	
 	// Las cartas de naves a la venta
 	private Nave[] navesVenta;
@@ -362,6 +372,109 @@ public class Tablero {
 		}
 		
 		return m;
+	}
+	
+	/**
+	 * Calcula la puntuación de un jugador (y la actualiza) siguiendo las normas descritas en las instrucciones
+	 * @param j el jugador del cual queremos conocer su puntuación
+	 * @return el número de puntos que tiene el jugador
+	 */
+	public int calculaPuntuacionDeJugador(Jugador j) {
+		int total = 0;
+		int totalHabitantes = 0;
+		int totalMaterias = 0;
+		/*
+		 * Vamos a recordar cómo se calcula la puntuación:
+		 * Cada planeta conquistado suma 10 puntos (No se guarda la puntuación de planetas que fueron tuyos pero fueron conquistados después por otro jugador).
+		 * Cada escudo protector en pié en tus planetas suma 3 puntos.
+		 * Cada mina en tus planetas suma 2 puntos.
+		 * Por cada 20 habitantes de la suma total de tus planetas sumas 1 punto.
+		 * Por cada nave tuya que no ha sido destruida sumas 2 puntos.
+		 * Cada punto de oro en tu poder suma 1 punto.
+		 * Cada 3 puntos de cualquier otra materia prima suman 1 punto (no se suman fracciones de puntos).
+		 */
+		
+		/*
+		 * Vamos a explorar todos los planetas, en cada uno de ellos:
+		 * 	- miraremos si el jugador es el conquistador.
+		 * 		- Si lo es:
+		 * 			- Sumaremos los puntos por planeta.
+		 * 			- Contaremos los habitantes, recordando sumar los asignados a escudo y minas
+		 * 			- Contaremos las unidades de materia prima
+		 * 			- Comprobaremos si alguna de las naves que orbita el planeta es suya y la contaremos
+		 * 			- Contaremos las minas y el escudo
+		 * 		- Si no lo es: 
+		 * 			- Comprobaremos si alguna de las naves que orbita el planeta es suya y la contaremos
+		 */
+				
+		for (Planeta p: this.getPlanetas()) {
+			/*
+			 * Si el planeta no está conquistado por nadie no contaremos los habitantes,
+			 * aunque los hayamos mandado nosotros.
+			 */
+			if (p.getConquistador() != null && p.getConquistador().equals(j)) {
+				// El planeta es suyo
+				// Sumamos los puntos por planeta
+				total += Tablero.PUNTOS_POR_PLANETA;
+				
+				// Sumamos los habitantes
+				totalHabitantes += p.getNumHabitantes();
+				
+				// Sumamos los habitantes asignados a minas y escudo
+				int numeroMinasActivas = p.getNumeroMinasActivas();
+				totalHabitantes += Mina.PERSONAS_ASIGNADAS_MINA;
+				
+				// Ya que sabemos el número de minas activas, sumamos los puntos
+				total += Tablero.PUNTOS_POR_MINA * numeroMinasActivas;
+				
+				// ¿Tiene escudo?
+				if (p.getEscudo() != null) {
+					totalHabitantes += EscudoProtector.PERSONAS_ASIGNADAS_ESCUDO_PROTECTOR;
+					// Ya que sabemos que el escudo está en pié, sumamos los puntos
+					total += Tablero.PUNTOS_POR_ESCUDO;
+				}
+				
+				// Vamos a inspeccionar las naves que orbitan el planeta
+				for (Nave n: p.getNavesOrbitando()) {
+					if (n.getJugador().equals(j)) {
+						// Si la carta pertenece al jugador, sumamos los puntos
+						total += Tablero.PUNTOS_POR_NAVE;
+					}
+				}
+				
+				// Sumamos por último las materias primas del planeta
+				totalMaterias += p.getUnidadesPiedra() + p.getUnidadesHierro() + p.getUnidadesCombustible();
+			}
+			else {
+				// El planeta no es suyo
+				// Vamos a inspeccionar las naves que orbitan el planeta
+				for (Nave n: p.getNavesOrbitando()) {
+					if (n.getJugador().equals(j)) {
+						// Si la carta pertenece al jugador, sumamos los puntos
+						total += Tablero.PUNTOS_POR_NAVE;
+					}
+				}
+			}
+			
+		}
+		
+		/*
+		 * Aquí tenemos ya el total de materias primas y de habitantes.
+		 * Vamos a sumar los puntos correspondientes
+		 */
+		// Sumamos los puntos por X habitantes (20 por defecto)
+		total += (totalHabitantes / Tablero.NUMERO_HABITANTES_PARA_PUNTUAR) * Tablero.PUNTOS_POR_X_HABITANTES;
+		
+		// Sumamos los puntos por X materias primas (3 por defecto)
+		total += (totalMaterias / Tablero.NUMERO_MATERIAS_PARA_PUNTUAR) * Tablero.PUNTOS_POR_X_OTRAS_MATERIAS;
+		
+		// El oro lo sumamos siempre
+		total += j.getUnidadesOro();
+		
+		// Le asignamos la puntuación al jugador
+		j.setPuntuacion(total);
+		
+		return total;
 	}
 
 

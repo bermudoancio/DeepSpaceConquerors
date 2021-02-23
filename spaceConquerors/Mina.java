@@ -2,7 +2,7 @@ package spaceConquerors;
 
 public class Mina extends Construccion {
 	
-	private static final int PERSONAS_ASIGNADAS_MINA = 10;
+	public static final int PERSONAS_ASIGNADAS_MINA = 10;
 	public static final int PRECIO_CARTA_MINA = 1;
 	
 	private TMateriales material;

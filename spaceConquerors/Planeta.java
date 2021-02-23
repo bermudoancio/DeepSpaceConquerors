@@ -171,7 +171,7 @@ public class Planeta implements IAtacable {
 	 * Devuelve el número de minas activas en el planeta
 	 * @return el número de minas activas en el 
 	 */
-	private int getNumeroMinasActivas() {
+	public int getNumeroMinasActivas() {
 		int minas = 0;
 		
 		for (Mina m: this.minas) {
@@ -221,6 +221,43 @@ public class Planeta implements IAtacable {
 		if (!deleted) {
 			throw new JuegoException("La nave no está orbitando este planeta");
 		}
+	}
+	
+	/**
+	 * Devuelve el array de naves que orbita el planeta, reducido al número concreto de naves que lo orbita.
+	 * @return un array con las naves exactas que están orbitando un planeta
+	 */
+	public Nave[] getNavesOrbitando() {
+		// Vamos a contar primero las naves que orbitan este planeta
+		/*
+		 * Creamos un array que contendrá las naves que orbitan dicho planeta.
+		 * El tamaño de dicho array será por tanto, el número de naves que lo orbita
+		 */
+		Nave[] navesOrbitanPlaneta = new Nave[this.getNumeroNavesOrbitando()];
+		int i = 0;
+		for (Nave n: this.navesOrbitando) {
+			if (n != null) {
+				navesOrbitanPlaneta[i++] = n;
+			}
+		}
+		
+		return navesOrbitanPlaneta;
+	}
+	
+	/**
+	 * Devuelve el número de naves que orbitan este planeta (no el tamaño del array, sino el número de naves que lo orbita)
+	 * @return el número de naves que está actualmente orbitando este planeta
+	 */
+	public int getNumeroNavesOrbitando() {
+		int naves = 0;
+		
+		for (Nave n: this.navesOrbitando) {
+			if (n != null) {
+				naves++;
+			}
+		}
+		
+		return naves;
 	}
 	
 	/**

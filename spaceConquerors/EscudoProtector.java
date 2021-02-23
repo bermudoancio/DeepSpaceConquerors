@@ -2,7 +2,7 @@ package spaceConquerors;
 
 public class EscudoProtector extends Construccion implements IAtacable, IReparable {
 	
-	private static final int PERSONAS_ASIGNADAS_ESCUDO_PROTECTOR = 15;
+	public static final int PERSONAS_ASIGNADAS_ESCUDO_PROTECTOR = 15;
 	public static final int PRECIO_CARTA_ESCUDO_PROTECTOR = 5;
 	private static final int PUNTOS_DEFENSA_INICIAL_ESCUDO_PROTECTOR = 20;
 	private static final int PUNTOS_REPARACION_ESCUDO_PROTECTOR = 15;

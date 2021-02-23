@@ -8,7 +8,7 @@ import utils.UserDataCollector;
 public class PrincipalJuego {
 	
 	public static final int NUMERO_RONDAS = 9;
-	public static final int OPCION_PASAR_TURNO = 11;
+	public static final int OPCION_PASAR_TURNO = 12;
 	
 	private Tablero t;
 	private int ronda;
@@ -39,6 +39,9 @@ public class PrincipalJuego {
 		// Esta variable marcará si un jugador ha ganado
 		boolean juegoTerminado = false;
 		
+		// Mostramos la información del tablero
+		System.out.println(this.t);
+		
 		while (ronda <= PrincipalJuego.NUMERO_RONDAS && !juegoTerminado) {
 			// Cada vuelta del bucle será una ronda
 			System.out.println();
@@ -51,9 +54,6 @@ public class PrincipalJuego {
 			System.out.println();
 			System.out.println();
 			
-
-			// Imprimimos la información del tablero
-			System.out.println(this.t);
 			
 			/*
 			 * Se considerará que una ronda se acaba cuando todos los jugadores no eliminados
@@ -73,7 +73,7 @@ public class PrincipalJuego {
 					int accionesRealizadas = 1;
 					int accionElegida = 0;
 					
-					while (accionesRealizadas <= 2 && accionElegida != 9) {
+					while (accionesRealizadas <= 2 && accionElegida != PrincipalJuego.OPCION_PASAR_TURNO) {
 						System.out.println();
 						System.out.println();
 						System.out.println("Jugada " + accionesRealizadas + " de 2");
@@ -134,6 +134,9 @@ public class PrincipalJuego {
 							break;
 						case 10: // Reparar 
 							break;
+						case 11: // Mostrar planetas
+							System.out.println(this.t);
+							break;
 						case OPCION_PASAR_TURNO:
 							break;
 						}
@@ -155,11 +158,31 @@ public class PrincipalJuego {
 				}
 			}
 			
-			// TODO: Calcular la puntuación de todos los usuarios
+			// Actualizamos las puntuaciones tras la ronda
+			this.actualizaPuntuaciones();
+
+			/*
+			 * Mostramos los jugadores ordenados según su puntuación (orden natural)
+			 * Tenemos que clonar el array, pues si no lo hacemos, referenciarán 
+			 * al mismo objeto, y se ordenarán los dos. No queremos eso pues si no 
+			 * se alteraría el orden de los jugadores en la segunda ronda.
+			 */
+			Jugador[] jugadoresOrdenados = jugadores.clone();
+			Arrays.sort(jugadoresOrdenados);
+			System.out.println(Arrays.toString(jugadoresOrdenados));
+			
+			// TODO: minar, nacer personas
+			
+			// Avanzamos de ronda
 			ronda++;
 		}
 		
 		System.out.println("Fin del juego");
+		System.out.println("Esta es la clasificación final:");
+		
+		// Podemos ordenar ya el array original, pues no volverá a usarse
+		Arrays.sort(jugadores);
+		System.out.println(Arrays.toString(jugadores));
 	}
 
 
@@ -340,9 +363,10 @@ public class PrincipalJuego {
 		System.out.println("8. Transportar personas");
 		System.out.println("9. Mejorar una nave");
 		System.out.println("10. Reparar");
-		System.out.println("11. Pasar turno");
+		System.out.println("11. Mostrar planetas");
+		System.out.println(PrincipalJuego.OPCION_PASAR_TURNO + ". Pasar turno");
 		
-		return UserDataCollector.getEnteroMinMax("¿Qué quieres hacer?", 1, 9);
+		return UserDataCollector.getEnteroMinMax("¿Qué quieres hacer?", 1, PrincipalJuego.OPCION_PASAR_TURNO);
 	}
 	
 	/**
@@ -608,6 +632,15 @@ public class PrincipalJuego {
 	private void atacar(Jugador jugador) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	/**
+	 * Calcula la puntuación actual de todos los jugadores
+	 */
+	public void actualizaPuntuaciones() {
+		for (Jugador j: this.t.getJugadores()) {
+			this.t.calculaPuntuacionDeJugador(j);
+		}
 	}
 
 	/*

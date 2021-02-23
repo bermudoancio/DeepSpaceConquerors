@@ -56,6 +56,14 @@ public abstract class Nave extends Carta implements IAtacable, IReparable, IMejo
 		this.jugador = j;
 	}
 	
+	/**
+	 * Devuelve el jugador dueño de la carta, o null si no tiene dueño
+	 * @return el jugador dueño de la carta, o null si no tiene dueño
+	 */
+	public Jugador getJugador() {
+		return this.jugador;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("## ");
