@@ -10,9 +10,8 @@ public class Mina extends Construccion {
 
 	/**
 	 * Constructor de una carta de mina
-	 * @param nombre
-	 * @param material
-	 * @throws InvalidValueException
+	 * @param nombre El nombre de la carta. Se recomiendo poner solo Mina, o Mina y algo detrás
+	 * @throws InvalidValueException Si las personas asignadas a la mina son 0 o menor, o el precio de la carta es un número negativo
 	 */
 	public Mina(String nombre) throws InvalidValueException {
 		super(nombre, Mina.PRECIO_CARTA_MINA, Mina.PERSONAS_ASIGNADAS_MINA);

@@ -11,7 +11,6 @@ public class NaveCarga extends Nave {
 	/**
 	 * Constructor de una carta nave de carga. 
 	 * @param nombre Nombre de la nave
-	 * @param capacidadCarga Capacidad de materias
 	 * @throws InvalidValueException Si la capacidad es negativa o el nombre no válido
 	 */
 	public NaveCarga(String nombre) throws InvalidValueException {

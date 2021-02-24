@@ -25,6 +25,17 @@ public class PrincipalJuego {
 		
 	}
 	
+	/**
+	 * El método principal que llevará la partida. 
+	 * 	- Asignará los jugadores
+	 *  - Les dará un planeta aleatorio
+	 *  - Decidirá quién empieza
+	 *  - Controlará las rondas
+	 *  - Controlará si el juego ha terminado
+	 *  - Controlará quién tiene que tirar en cada turno
+	 *  - Mostrará el menú de acciones
+	 *  - Recogerá la acción escogida y llamará al método correspondiente
+	 */
 	public void comenzarPartida() {
 		// Asignamos los jugadores
 		this.asignarJugadores();
@@ -213,7 +224,7 @@ public class PrincipalJuego {
 	/**
 	 * Pregunta cuántos jugadores van a jugar y devuelve el número introducido 
 	 * por el usuario, entre el mínimo y el máximo aceptados
-	 * @return
+	 * @return el número de jugadores que jugarán
 	 */
 	private static int preguntarJugadores() {
 		return UserDataCollector.getEnteroMinMax("¿Cuántos jugadores van a jugar?", Tablero.MIN_JUGADORES, Tablero.MAX_JUGADORES);
@@ -329,8 +340,7 @@ public class PrincipalJuego {
 	}
 	
 	/**
-	 * Devuelve el tablero de juego
-	 * @return
+	 * @return el tablero de juego
 	 */
 	public Tablero getTablero() {
 		return t;
@@ -451,7 +461,8 @@ public class PrincipalJuego {
 					// Preguntamos a qué planeta la mandamos orbitar
 					p = this.seleccionaPlanetaPropio("¿A qué planeta quieres asignar la nave?", j);
 					
-					this.asignarNaveAPlaneta(nave, p);
+					// Asignamos la nave al nuevo planeta
+					p.addNaveOrbitando(nave);
 					
 					j.pagarOro(this.t.getNavesVenta()[cartaEscogida].getPrecio());
 					t.comprarCartaNave(nave);
@@ -620,7 +631,7 @@ public class PrincipalJuego {
 	 * junto con una opción para cancelar.
 	 * Una vez que el jugador seleccione el planeta destino, moveremos
 	 * la nave y la eliminaremos del planeta actual
-	 * @param jugador
+	 * @param jugador el jugador que realiza la acción
 	 * @throws CancelarException si el usuario cancela o no tiene naves
 	 */
 	private void moverNave(Jugador jugador) throws CancelarException {
@@ -750,8 +761,8 @@ public class PrincipalJuego {
 	 * Si el planeta hubiese sido conquistado, lo mostraremos por pantalla.
 	 * Si a raíz de esta última opción, un jugador queda eliminado, también
 	 * lo mostraremos por pantalla.
-	 * @param jugador
-	 * @throws CancelarException
+	 * @param jugador el jugador que realiza la acción
+	 * @throws CancelarException si el jugador cancela la acción, o no tiene naves de ataque
 	 */
 	private void atacar(Jugador jugador) throws CancelarException {
 		/*
@@ -1002,16 +1013,7 @@ public class PrincipalJuego {
 		
 	}
 	
-	/**
-	 * Asigna una nave a la órbita de un planeta
-	 * @param nave la nave a asignar
-	 * @param p el planeta que orbitará
-	 * @throws JuegoException si la nave no puede asignarse a dicho planeta
-	 */
-	private void asignarNaveAPlaneta(Nave nave, Planeta p) throws JuegoException {
-		p.addNaveOrbitando(nave);
-	}
-
+	
 	/**
 	 * Muestra las cartas de nave que hay en venta en este momento
 	 */

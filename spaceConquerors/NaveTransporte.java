@@ -11,7 +11,6 @@ public class NaveTransporte extends Nave {
 	/**
 	 * Constructor de una carta de nave de transporte.
 	 * @param nombre Nombre de la nave
-	 * @param capacidad Capacidad de pasajeros
 	 * @throws InvalidValueException Si la capacidad de pasajeros introducida
 	 * es menor que 0 ó el nombre no es válido
 	 */

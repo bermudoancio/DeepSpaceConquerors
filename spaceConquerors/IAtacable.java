@@ -12,8 +12,10 @@ public interface IAtacable {
 	
 	/**
 	 * Resta al objeto los puntos de defensa que le inflige el ataque.
-	 * @param <p>puntosDaño El daño que le inflingen. Si el resultado
-	 * de restar los puntos es negativo, se lanzará una excepción DestructionException
+	 * @param puntosDaño El daño que le inflingen. Si el resultado de restar los puntos es negativo, se lanzará una excepción DestructionException
+	 * @throws InvalidValueException Si puntosDaño es 0 o negativo
+	 * @throws DestructionException Si el objetivo ha sido destruido
+	 * @throws JuegoException Si el objetivo no puede ser atacado 
 	 */
 	public void serAtacado(int puntosDaño)  throws InvalidValueException, DestructionException, JuegoException;
 	

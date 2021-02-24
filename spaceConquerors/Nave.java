@@ -9,9 +9,10 @@ public abstract class Nave extends Carta implements IAtacable, IReparable, IMejo
 
 	/**
 	 * Crea la nave
-	 * @param nombre
-	 * @param precio
-	 * @throws InvalidValueException
+	 * @param nombre El nombre de la carta. Normalmente Nave
+	 * @param precio El precio de la carta en unidades de oro
+	 * @param puntosDefensa Los puntos de defensa de la nave
+	 * @throws InvalidValueException Si el precio es menor que 0
 	 */
 	public Nave(String nombre, int precio, int puntosDefensa) throws InvalidValueException {
 		super(nombre, precio);

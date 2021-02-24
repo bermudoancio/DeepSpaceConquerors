@@ -39,8 +39,8 @@ public class Tablero {
 
 	/**
 	 * Constructor del tablero
-	 * @param jugadores
-	 * @throws InvalidValueException
+	 * @param jugadores el número de jugadores que habrá en la partida
+	 * @throws InvalidValueException Si el número de jugadores no está entre los valores aceptados
 	 */
 	private Tablero(int jugadores) throws InvalidValueException {
 		// Inicializamos
@@ -286,6 +286,7 @@ public class Tablero {
 	}
 	
 	/**
+	 * @param j El jugador del que queremos saber los planetas que tiene conquistados
 	 * @return los planetas del tablero que le pertenecen a un jugador determinado
 	 */
 	public Planeta[] getPlanetasDeJugador(Jugador j) {

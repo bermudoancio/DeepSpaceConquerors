@@ -12,7 +12,6 @@ public class EscudoProtector extends Construccion implements IAtacable, IReparab
 	/**
 	 * Consructor de una carta de escudo. 
 	 * @param nombre El nombre de la carta
-	 * @param defensaExtra Los puntos extras que se sumarán a la protección por defecto del escudo
 	 * @throws InvalidValueException Si los puntos de defensa extra son negativos
 	 */
 	public EscudoProtector(String nombre) throws InvalidValueException {
@@ -45,7 +44,7 @@ public class EscudoProtector extends Construccion implements IAtacable, IReparab
 
 	/**
 	 * @param puntosDefensa los puntos de defensa extra al lanzar el dado
-	 * @throws InvalidValueException 
+	 * @throws InvalidValueException Si puntosDefensa es un número negativo
 	 */
 	public void setPuntosDefensa(int puntosDefensa) throws InvalidValueException {
 		if (puntosDefensa < 0) {

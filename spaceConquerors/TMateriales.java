@@ -4,8 +4,7 @@ public enum TMateriales {
 	PIEDRA, ORO, HIERRO, COMBUSTIBLE;
 	
 	/**
-	 * Devuelve una array de String con los nombres de los materiales
-	 * @return
+	 * @return un array de String con los nombres de los materiales
 	 */
 	public static String[] getValuesAsString() {
 		String[] valores = new String[TMateriales.values().length];
