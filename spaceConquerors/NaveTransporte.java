@@ -4,7 +4,7 @@ public class NaveTransporte extends Nave {
 	
 	private static final int MEJORA_NAVE_TRANSPORTE = 2;
 	private static final int PRECIO_CARTA_NAVE_TRANSPORTE = 2;
-	private static final int PUNTOS_DEFENSA_INICIAL_TRANSPORTE = 10;
+	private static final int PUNTOS_DEFENSA_INICIAL_TRANSPORTE = 4;
 
 	private int capacidad;
 	
@@ -47,6 +47,13 @@ public class NaveTransporte extends Nave {
 	 */
 	public void mejorar() {
 		this.capacidad *= NaveTransporte.MEJORA_NAVE_TRANSPORTE;		
+	}
+	
+	/**
+	 * @return la capacidad de pasajeros de la nave
+	 */
+	public int getCapacidad() {
+		return this.capacidad;
 	}
 	
 	@Override

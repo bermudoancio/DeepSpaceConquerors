@@ -4,7 +4,7 @@ public class NaveCarga extends Nave {
 	
 	private static final int MEJORA_NAVE_CARGA = 2;
 	private static final int PRECIO_CARTA_NAVE_CARGA = 3;
-	private static final int PUNTOS_DEFENSA_INICIAL_CARGA = 10;
+	private static final int PUNTOS_DEFENSA_INICIAL_CARGA = 4;
 	
 	private int capacidadCarga;
 

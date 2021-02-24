@@ -73,72 +73,53 @@ public class PrincipalJuego {
 					int accionesRealizadas = 1;
 					int accionElegida = 0;
 					
-					while (accionesRealizadas <= 2 && accionElegida != PrincipalJuego.OPCION_PASAR_TURNO) {
+					while (accionesRealizadas <= 2 && accionElegida != PrincipalJuego.OPCION_PASAR_TURNO && !juegoTerminado) {
 						System.out.println();
 						System.out.println();
 						System.out.println("Jugada " + accionesRealizadas + " de 2");
 						accionElegida = this.muestraMenuAcciones();
 						
-						switch(accionElegida) {
-						case 1: // Comprar carta de nave
-							try {
+						try {
+							switch(accionElegida) {
+							case 1: // Comprar carta de nave
 								this.comprarCartaNave(jugadores[indiceJugador]);
-							} 
-							catch (CancelarException e) {
-								// La acción no se ha realizado.
-								if (e.getMessage() != null && !e.getMessage().isBlank()) {
-									System.out.println(e.getMessage());
-								}
-								// No le contaremos la acción
-								continue;
-							}
-							break;
-						case 2: // Comprar carta de construcción
-							try {
-								this.comprarCartaConstruccion(jugadores[indiceJugador]);
-							} 
-							catch (CancelarException e) {
-								// La acción no se ha realizado.
-								if (e.getMessage() != null && !e.getMessage().isBlank()) {
-									System.out.println(e.getMessage());
-								}
-								// No le contaremos la acción
-								continue;
-							}
-							break;
-						case 3: // Coger carta de materia prima
-							try {
+								break;
+							case 2: // Comprar carta de construcción
+								this.comprarCartaConstruccion(jugadores[indiceJugador]);								
+								break;
+							case 3: // Coger carta de materia prima
 								this.cogerCartaMateriaPrima(jugadores[indiceJugador]);
-							} 
-							catch (CancelarException e) {
-								// La acción no se ha realizado.
-								if (e.getMessage() != null && !e.getMessage().isBlank()) {
-									System.out.println(e.getMessage());
-								}
-								// No le contaremos la acción
-								continue;
+								break;
+							case 4: // Construir
+								break;
+							case 5: // Mover nave de un planeta a otro
+								this.moverNave(jugadores[indiceJugador]);
+								break;
+							case 6: // Atacar
+								this.atacar(jugadores[indiceJugador]);
+								break;
+							case 7: // Transportar carga
+								break;
+							case 8: // Transportar personas
+								break;
+							case 9: // Mejorar una nave
+								break;
+							case 10: // Reparar 
+								break;
+							case 11: // Mostrar planetas
+								System.out.println(this.t);
+								break;
+							case OPCION_PASAR_TURNO:
+								break;
 							}
-							break;
-						case 4: // Construir
-							break;
-						case 5: // Mover nave de un planeta a otro
-							break;
-						case 6: // Atacar
-							this.atacar(jugadores[indiceJugador]);
-							break;
-						case 7: // Transportar carga
-							break;
-						case 8: // Transportar personas
-							break;
-						case 9: // Mejorar una nave
-							break;
-						case 10: // Reparar 
-							break;
-						case 11: // Mostrar planetas
-							System.out.println(this.t);
-							break;
-						case OPCION_PASAR_TURNO:
-							break;
+						}
+						catch (CancelarException e) {
+							// La acción no se ha realizado.
+							if (e.getMessage() != null && !e.getMessage().isBlank()) {
+								System.out.println(e.getMessage());
+							}
+							// No le contaremos la acción
+							continue;
 						}
 						
 						juegoTerminado = this.checkJuegoTerminado();
@@ -151,6 +132,7 @@ public class PrincipalJuego {
 					
 				}
 				
+				// Pasamos al siguiente jugador
 				indiceJugador = ++indiceJugador % jugadores.length;
 				
 				if (indiceJugador == indiceJugadorEmpieza) {
@@ -159,6 +141,7 @@ public class PrincipalJuego {
 			}
 			
 			// Actualizamos las puntuaciones tras la ronda
+			System.out.println("Esta es la puntuación actual");
 			this.actualizaPuntuaciones();
 
 			/*
@@ -172,6 +155,12 @@ public class PrincipalJuego {
 			System.out.println(Arrays.toString(jugadoresOrdenados));
 			
 			// TODO: minar, nacer personas
+			try {
+				this.accionesDeFinDeRonda();
+			}
+			catch (JuegoException e) {
+				System.out.println(e.getMessage());
+			}
 			
 			// Avanzamos de ronda
 			ronda++;
@@ -379,9 +368,9 @@ public class PrincipalJuego {
 		 * Para ello, ha tenido que conquistar todos los planetas.
 		 */
 		Jugador j = null;
-		boolean mismoJugador = true;
+		boolean unicoJugador = true;
 		
-		for (int i = 0; i < this.t.getPlanetas().length && mismoJugador; i++) {
+		for (int i = 0; i < this.t.getPlanetas().length && unicoJugador; i++) {
 			
 			if (j == null) {
 				// j todavía no tiene valor, le ponemos el del primer planeta
@@ -389,18 +378,18 @@ public class PrincipalJuego {
 			}
 			
 			if (this.t.getPlanetas()[i].getConquistador() == null) {
-				// hay un planeta no conquistado
-				mismoJugador = false;
+				// El planeta no está conquistado, seguimos buscando otros jugadores
+				continue;
 			}
 			else {
 				// si el jugador no es el conquistador de este planeta
 				if (!this.t.getPlanetas()[i].getConquistador().equals(j)) {
-					mismoJugador = false;
+					unicoJugador = false;
 				}
 			}
 		}
 		
-		return mismoJugador;
+		return unicoJugador;
 	}
 	
 	/*
@@ -410,16 +399,20 @@ public class PrincipalJuego {
 	 */
 	
 	/**
-	 * Realiza la acción de comprar una carta de nave
-	 * @param j
-	 * @throws CancelarException
+	 * Realiza la acción de comprar una carta de nave. Tiene en cuenta el 
+	 * oro del usuario antes de hacer nada más. Si escoge una nave de carga 
+	 * o transporte, se le pedirá que tire el dado para decidir la capacidad.
+	 * Por último, se mostrarán sus planetas y se pedirá que lo asigne a uno
+	 * de ellos. 
+	 * @param j El jugador que compra la carta
+	 * @throws CancelarException Si el usuario cancela o no tiene dinero suficiente
 	 */
 	private void comprarCartaNave(Jugador j) throws CancelarException {
 		// Lo primero será comprobar si el jugador tiene oro suficiente
 		// Vamos a mostrar al usuario el saldo que tiene
 		System.out.println("Ahora mismo tienes " + j.getUnidadesOro() + " unidades de oro disponibles");
 		this.mostrarCartasNaveVisibles();
-		int cartaEscogida = UserDataCollector.getEnteroMinMax("Elige el número de la carta, ó 0 para cancelar", 0, this.t.getNavesVenta().length);
+		int cartaEscogida = UserDataCollector.getEnteroMinMax("Elige el número de la carta (0 para cancelar)", 0, this.t.getNavesVenta().length);
 		if (cartaEscogida == 0) {
 			throw new CancelarException();
 		}
@@ -456,7 +449,8 @@ public class PrincipalJuego {
 					// Las naves de ataque no tienen elementos aleatorios
 					
 					// Preguntamos a qué planeta la mandamos orbitar
-					p = this.preguntaPlanetaAsignar(j);
+					p = this.seleccionaPlanetaPropio("¿A qué planeta quieres asignar la nave?", j);
+					
 					this.asignarNaveAPlaneta(nave, p);
 					
 					j.pagarOro(this.t.getNavesVenta()[cartaEscogida].getPrecio());
@@ -479,14 +473,20 @@ public class PrincipalJuego {
 	}
 	
 	/**
-	 * Realiza la acción de comprar una carta de construcción. Añade la carta al mazo del usuario
-	 * @param j
-	 * @throws CancelarException
+	 * Realiza la acción de comprar una carta de construcción. Tiene en cuenta si el 
+	 * jugador tiene dinero o no para comprarla. Si escoge una mina, se le pedirá que
+	 * decida de qué material quiere la mina. Si escoge un material distinto al oro, 
+	 * se le pedirá que tire el dado para decidir la cantidad de materia que minará. 
+	 * Si escoge un escudo, se le pedirá que tire el dado para ver cuántos puntos
+	 * extra se añaden a los puntos de defensa.
+	 * Por último, se añadirá al mazo de cartas de construcción del jugador. 
+	 * @param j El jugador que compra la carta
+	 * @throws CancelarException Si el usuario cancela o no tiene dinero suficiente
 	 */
 	private void comprarCartaConstruccion(Jugador j) throws CancelarException {
 		// Lo primero será comprobar si el jugador tiene oro suficiente
 		this.mostrarCartasConstruccion();
-		int cartaEscogida = UserDataCollector.getEnteroMinMax("Elige el número de la carta, ó 0 para cancelar", 0, 2);
+		int cartaEscogida = UserDataCollector.getEnteroMinMax("Elige el número de la carta (0 para cancelar)", 0, 2);
 		if (cartaEscogida == 0) {
 			throw new CancelarException();
 		}
@@ -598,41 +598,369 @@ public class PrincipalJuego {
 			}
 		}
 		else {
-			System.out.println(); // Línea en blanco para mejorar visibilidad
-			System.out.println("Estos son tus planetas:");
-			// Si no es oro, preguntaremos a qué planeta quiere añadirlo
-			Planeta[] planetasDeJugador = t.getPlanetasDeJugador(jugador);
+			Planeta planetaSeleccionado = this.seleccionaPlanetaPropio("Selecciona el índice del planeta al que quieres mandar la materia prima (0 para cancelar):", jugador);
 			
-			int i = 1;
-			for (Planeta p: planetasDeJugador) {
-				System.out.println(i++ + ": " + p);
+			try {
+				planetaSeleccionado.addUnidadesDeMateriaPrima(cartaMaterial.gettMaterial(), Material.CANTIDAD_MATERIALES_CARTA);
+			} 
+			catch (InvalidValueException e) {
+				throw new CancelarException(e.getMessage());
 			}
 			
-			int indicePlanetaSeleccionado = UserDataCollector.getEnteroMinMax("Selecciona el índice del planeta al que quieres mandar la materia prima (0 para cancelar):", 0, planetasDeJugador.length);
-			
-			if (indicePlanetaSeleccionado == 0) {
-				// Si es coge la opción 0, cancelamos
-				throw new CancelarException();
-			}
-			else {
-				// El usuario ve los índices basados en 1, nosotros restamos 1 para basarlos en índice 0
-				Planeta planetaSeleccionado = planetasDeJugador[--indicePlanetaSeleccionado];
-				try {
-					planetaSeleccionado.addUnidades(cartaMaterial.gettMaterial(), Material.CANTIDAD_MATERIALES_CARTA);
-				} 
-				catch (InvalidValueException e) {
-					throw new CancelarException(e.getMessage());
-				}
-			}
 		}
 		
 	}
 	
-	
-	private void atacar(Jugador jugador) {
-		// TODO Auto-generated method stub
+	/**
+	 * Lo primero que haremos será mostrar un listado de sus naves.
+	 * Si no tiene, directamente mostramos un mensaje de error y cancelamos.
+	 * Si las tiene, las mostraremos numeradas, junto al nombre del planeta
+	 * en el que están orbitando. Se añadirá una opción para cancelar.
+	 * Una vez seleccionada, se mostrará un listado de todos los demás planetas,
+	 * junto con una opción para cancelar.
+	 * Una vez que el jugador seleccione el planeta destino, moveremos
+	 * la nave y la eliminaremos del planeta actual
+	 * @param jugador
+	 * @throws CancelarException si el usuario cancela o no tiene naves
+	 */
+	private void moverNave(Jugador jugador) throws CancelarException {
+		int contadorNaves = 0;
+		for (Planeta p: t.getPlanetas()) {
+			
+			for (Nave n: p.getNavesOrbitando()) {
+				if (n.getJugador().equals(jugador)) {
+					// la nave pertenece al jugador. La contamos
+					contadorNaves++;
+				}
+			}
+		}
+		
+		if (contadorNaves == 0) {
+			throw new CancelarException("El jugador no tiene naves de ataque disponibles");
+		}
+		
+		
+		
+		
+		// Vamos a mostrar un mensaje de cabecera para el listado de sus naves de ataque
+		System.out.println();
+		System.out.println("Estas son tus naves: ");
+		
+		
+		Nave[] navesDeJugador = new Nave[contadorNaves];
+		/*
+		 * Para no tener que recorrer una tercera vez, guardaremos los planetas al que 
+		 * orbitan las naves en un array con el mismo índice
+		 */
+		Planeta[] planetasQueOrbitanLasNaves = new Planeta[contadorNaves];
+		/*
+		 * Aunque ineficiente, debido a que utilizamos arrays, tenemos que volver
+		 * a recorrer todos los planetas para añadir ahora las naves al array 
+		 */
+		contadorNaves = 0;
+		for (Planeta p: t.getPlanetas()) {
+			
+			for (Nave n: p.getNavesOrbitando()) {
+				if (n.getJugador().equals(jugador)) {
+					// la nave pertenece al jugador. La contamos
+					navesDeJugador[contadorNaves] = n;
+					planetasQueOrbitanLasNaves[contadorNaves] = p;
+					contadorNaves++;
+					
+					// Además, la mostramos para seleccionar
+					StringBuilder sb = new StringBuilder();
+					sb.append(contadorNaves)
+					.append(": Puntos de defensa: ").append(n.getPuntosDefensa());
+					
+					
+					if (n instanceof NaveAtaque) {
+						sb.append(". Poder de ataque: ").append(((NaveAtaque) n).getPoderAtaque());
+					}
+					else if (n instanceof NaveCarga) {
+						sb.append(". Capacidad: ").append(((NaveCarga) n).getCapacidadCarga()).append(" unidades de materia");
+					}
+					else if (n instanceof NaveTransporte) {
+						sb.append(". Capacidad: ").append(((NaveTransporte) n).getCapacidad()).append(" pasajeros");
+					}
+					
+					sb.append(". Orbita el planeta ").append(p.getNombre());
+					
+					// Mostramos toda la información de la nave
+					System.out.println(sb.toString());
+					
+				}
+			}
+		}
+		
+		// Ahora le pedimos que seleccione una de las naves
+		int indiceNaveSeleccionada = UserDataCollector.getEnteroMinMax("Selecciona una nave (0 para cancelar)", 0, navesDeJugador.length);
+		if (indiceNaveSeleccionada == 0) {
+			throw new CancelarException();
+		}
+		
+		// El usuario ve los índices basados en 1, nosotros restamos 1 para basarlos en índice 0
+		Nave naveSeleccionada = navesDeJugador[indiceNaveSeleccionada - 1];
+		Planeta planetaQueOrbita = planetasQueOrbitanLasNaves[indiceNaveSeleccionada - 1];
+		
+		// Ahora mostramos los planetas (excepto el actual de la nave)
+		// Si hay X planetas, tenemos X - 1 posibles destinos, ya que el actual no cuenta
+		Planeta[] posiblesDestinos = new Planeta[this.t.getPlanetas().length - 1];
+		int contador = 0;
+		for (Planeta p: this.t.getPlanetas()) {
+			if (p != planetaQueOrbita) {
+				posiblesDestinos[contador++] = p;
+				System.out.println(contador + ": " + p);
+			}
+		}
+		
+		int indicePlanetaSeleccionado = UserDataCollector.getEnteroMinMax("Selecciona un destino (0 para cancelar)", 0, posiblesDestinos.length);
+		if (indicePlanetaSeleccionado == 0) {
+			throw new CancelarException();
+		}
+		
+		/*
+		 * Ya tenemos todo lo necesario: la nave, y el destino. Por tanto, ahora
+		 * desligamos la nave de su antiguo planeta y la añadimos al nuevo
+		 */
+		try {
+			planetaQueOrbita.deleteNaveOrbitando(naveSeleccionada);
+			// El usuario ve los índices basados en 1, nosotros restamos 1 para basarlos en índice 0
+			posiblesDestinos[indicePlanetaSeleccionado - 1].addNaveOrbitando(naveSeleccionada);
+			
+			System.out.println("La nave ya está orbitando el nuevo planeta " + posiblesDestinos[indicePlanetaSeleccionado - 1].getNombre());
+		} 
+		catch (JuegoException e) {
+			throw new CancelarException(e.getMessage());
+		}
 		
 	}
+	
+	/**
+	 * Lo primero que haremos será mostrar un listado de sus naves de ataque.
+	 * Si no tiene, directamente mostramos un mensaje de error y cancelamos.
+	 * Si las tiene, las mostraremos numeradas, junto al nombre del planeta
+	 * en el que están orbitando. Se añadirá una opción para cancelar.
+	 * Una vez seleccionada, se mostrarán todas las otras naves que orbitan
+	 * el planeta y que no son suyas y, por tanto, son atacables. Además,
+	 * si el planeta está conquistado por alguien que no sea el propio jugador,
+	 * se mostrará una opción para atacarlo. Tanto las naves como el planeta,
+	 * al ser listados, mostrarán los puntos de defensa restantes. Aquí 
+	 * volveremos a introducir una opción para cancelar.
+	 * Una vez seleccionado el objetivo, mostraremos los daños ocasionados.
+	 * Si el planeta hubiese sido conquistado, lo mostraremos por pantalla.
+	 * Si a raíz de esta última opción, un jugador queda eliminado, también
+	 * lo mostraremos por pantalla.
+	 * @param jugador
+	 * @throws CancelarException
+	 */
+	private void atacar(Jugador jugador) throws CancelarException {
+		/*
+		 * Lo primero que haremos será mostrar un listado de sus naves de ataque.
+		 * Si no tiene, directamente mostramos un mensaje de error y cancelamos.
+		 * Si las tiene, las mostraremos numeradas, junto al nombre del planeta
+		 * en el que están orbitando. Se añadirá una opción para cancelar.
+		 * Una vez seleccionada, se mostrarán todas las otras naves que orbitan
+		 * el planeta y que no son suyas y, por tanto, son atacables. Además,
+		 * si el planeta está conquistado por alguien que no sea el propio jugador,
+		 * se mostrará una opción para atacarlo. Tanto las naves como el planeta,
+		 * al ser listados, mostrarán los puntos de defensa restantes. Aquí 
+		 * volveremos a introducir una opción para cancelar.
+		 * Una vez seleccionado el objetivo, mostraremos los daños ocasionados.
+		 * Si el planeta hubiese sido conquistado, lo mostraremos por pantalla.
+		 * Si a raíz de esta última opción, un jugador queda eliminado, también
+		 * lo mostraremos por pantalla.
+		 */
+		/*
+		 * Vamos a mostrar las naves del usuario. Para ello, inspeccionamos todos
+		 * los planetas y contamos cuántas naves hay, para así crear un array con
+		 * el tamaño justo
+		 */
+		int contadorNaves = 0;
+		for (Planeta p: t.getPlanetas()) {
+			
+			for (Nave n: p.getNavesOrbitando()) {
+				if (n.getJugador().equals(jugador)) {
+					if (n instanceof NaveAtaque) {
+						// la nave pertenece al jugador. La contamos
+						contadorNaves++;
+					}
+				}
+			}
+		}
+		
+		if (contadorNaves == 0) {
+			throw new CancelarException("El jugador no tiene naves de ataque disponibles");
+		}
+		
+		// Vamos a mostrar un mensaje de cabecera para el listado de sus naves de ataque
+		System.out.println();
+		System.out.println("Estas son tus naves de ataque: ");
+		
+		
+		NaveAtaque[] navesAtaqueDeJugador = new NaveAtaque[contadorNaves];
+		/*
+		 * Para no tener que recorrer una tercera vez, guardaremos los planetas al que 
+		 * orbitan las naves en un array con el mismo índice
+		 */
+		Planeta[] planetasQueOrbitanLasNaves = new Planeta[contadorNaves];
+		/*
+		 * Aunque ineficiente, debido a que utilizamos arrays, tenemos que volver
+		 * a recorrer todos los planetas para añadir ahora las naves al array 
+		 */
+		contadorNaves = 0;
+		for (Planeta p: t.getPlanetas()) {
+			
+			for (Nave n: p.getNavesOrbitando()) {
+				if (n.getJugador().equals(jugador)) {
+					if (n instanceof NaveAtaque) {
+						// la nave pertenece al jugador. La contamos
+						navesAtaqueDeJugador[contadorNaves] = (NaveAtaque) n;
+						planetasQueOrbitanLasNaves[contadorNaves] = p;
+						contadorNaves++;
+						
+						// Además, la mostramos para seleccionar
+						System.out.println(contadorNaves + ": Puntos de defensa: " + n.getPuntosDefensa() + ". Orbita el planeta " + p.getNombre());
+					}
+				}
+			}
+		}
+		
+		// Ahora le pedimos que seleccione una de las naves
+		int indiceNaveSeleccionada = UserDataCollector.getEnteroMinMax("Selecciona una nave (0 para cancelar)", 0, navesAtaqueDeJugador.length);
+		if (indiceNaveSeleccionada == 0) {
+			throw new CancelarException();
+		}
+		
+		// El usuario ve los índices basados en 1, nosotros restamos 1 para basarlos en índice 0
+		NaveAtaque naveSeleccionada = navesAtaqueDeJugador[indiceNaveSeleccionada - 1];
+		Planeta planetaQueOrbita = planetasQueOrbitanLasNaves[indiceNaveSeleccionada - 1];
+		
+		/*
+		 * Lo siguiente es mostrar las demás naves que orbitan dicho planeta y que no
+		 * pertenecen al jugador 
+		 */
+		int numeroNavesNoPertenecenAJugador = 0;
+		for (Nave n: planetaQueOrbita.getNavesOrbitando()) {
+			if (!n.getJugador().equals(jugador)) {
+				// Esta nave no le pertenece al jugador
+				numeroNavesNoPertenecenAJugador++;
+			}
+		}
+		
+		Nave[] navesQueNoPertenecenAlJugador = new Nave[numeroNavesNoPertenecenAJugador];
+		
+		numeroNavesNoPertenecenAJugador = 0;
+		for (Nave n: planetaQueOrbita.getNavesOrbitando()) {
+			if (!n.getJugador().equals(jugador)) {
+				// Añadimos la nave a un array temporal
+				navesQueNoPertenecenAlJugador[numeroNavesNoPertenecenAJugador++] = n;
+				System.out.println(numeroNavesNoPertenecenAJugador + ": " + n.getPuntosDefensa() + " puntos de defensa restantes. Pertenece a: " + n.getJugador().getNombre());
+			}
+		}
+		
+		// Por último, si el planeta está conquistado por un enemigo, lo mostramos también
+		if (planetaQueOrbita.getConquistador() != null && !planetaQueOrbita.getConquistador().equals(jugador)) {
+			StringBuilder sb = new StringBuilder();
+			sb.append((++numeroNavesNoPertenecenAJugador)) // Índice para seleccionarlo. Lo aumentamos para aclarar que hay un objetivo más
+			.append(": ").append(planetaQueOrbita.getNombre()).append(". "); // Nombre del planeta
+			
+			if(planetaQueOrbita.getEscudo() == null) {
+				sb.append("Sin escudo protector. ");
+			}
+			else {
+				sb.append(planetaQueOrbita.getEscudo().getPuntosDefensa())
+				.append(" puntos de escudo de defensa restantes. ");
+			}
+			
+			sb.append("Pertenece a ")
+			.append(planetaQueOrbita.getConquistador().getNombre());
+			
+			System.out.println(sb.toString());
+		}
+			
+		// Ahora recogemos el objetivo de su ataque
+		int indiceObjetivo = UserDataCollector.getEnteroMinMax("Introduce el número del objetivo (0 para cancelar)", 0, numeroNavesNoPertenecenAJugador);
+		if (indiceObjetivo == 0) {
+			throw new CancelarException();
+		}
+		
+		IAtacable objetivo;
+		
+		if (indiceObjetivo > navesQueNoPertenecenAlJugador.length) {
+			/*
+			 * Ha seleccionado el planeta. ¿Por qué lo sabemos? Porque el
+			 * array que contiene las naves atacables tiene navesQueNoPertenecenAlJugador.length
+			 * tamaño, y el usuario ha seleccionado uno más. La única forma de que
+			 * esto haya podido pasar es que el planeta también sea atacable y lo
+			 * haya seleccionado. Si no, el método getEnteroMinMax hubiese dado error
+			 */
+			objetivo = planetaQueOrbita;
+		}
+		else {
+			// El objetivo es una nave
+			// El usuario ve los índices basados en 1, nosotros restamos 1 para basarlos en índice 0
+			objetivo = navesQueNoPertenecenAlJugador[--indiceObjetivo];
+		}
+		
+		try {
+			naveSeleccionada.atacar(objetivo);
+			
+			// La siguiente línea no se mostrará si el objetivo se destruye, pues saltará la excepción DestructionException
+			System.out.println("El objetivo ahora tiene " + objetivo.getPuntosDefensa() + " puntos de defensa restantes");
+		} 
+		catch (InvalidValueException e) {
+			// La nave no atacará con un valor menor que 0. De todas formas:
+			throw new CancelarException(e.getMessage());
+		} 
+		catch (DestructionException e) {
+			System.out.println(e.getMessage());
+			if (objetivo instanceof Nave) {
+				try {
+					planetaQueOrbita.deleteNaveOrbitando((Nave) objetivo);
+				} 
+				catch (JuegoException e1) {
+					// La nave sí orbita el planeta. Este código nunca se alcanzará
+				}
+			}
+			else {
+				/*
+				 * Si el objetivo no era una nave, era un planeta. Y si ha sido
+				 * lanzada DestructionException, significa que el escudo ha sido
+				 * destruido y por tanto el planeta conquistado
+				 */
+				// Guardamos el conquistador de este planeta por si tras la destrucción queda eliminado
+				Jugador jugadorConquistadorPlaneta = planetaQueOrbita.getConquistador();
+				planetaQueOrbita.conquistar(jugador);
+				System.out.println("El planeta " + planetaQueOrbita.getNombre() + " ha sido conquistado por el jugador " + jugador.getNombre());
+				
+				// Tras perder el planeta, ¿está el ex-conquistador del planeta eliminado?
+				if (this.t.checkJugadorEliminado(jugadorConquistadorPlaneta)) {
+					jugadorConquistadorPlaneta.eliminar();
+					System.out.println("#########################################");
+					System.out.println("#########################################");
+					System.out.println();
+					System.out.println("¡OOOOOOHHHHHH! El jugador " + jugadorConquistadorPlaneta.getNombre() + " ha sido eliminado. ¡Buena suerte la próxima vez!");
+					System.out.println();
+					System.out.println("#########################################");
+					System.out.println("#########################################");
+				}
+			}
+		} 
+		catch (JuegoException e) {
+			/*
+			 * No llegará aquí porque antes nos hemos asegurado que el planeta
+			 * estaba conquistado por otro jugador. De todas formas:  
+			 */
+			throw new CancelarException(e.getMessage());
+		}
+	}
+	
+	
+	/*
+	 * ###########################################################
+	 * ####################FIN  ACCIONES##########################
+	 * ###########################################################
+	 */
 	
 	/**
 	 * Calcula la puntuación actual de todos los jugadores
@@ -642,12 +970,37 @@ public class PrincipalJuego {
 			this.t.calculaPuntuacionDeJugador(j);
 		}
 	}
-
-	/*
-	 * ###########################################################
-	 * ####################FIN  ACCIONES##########################
-	 * ###########################################################
+	
+	/**
+	 * Hace que aumente la población en todos los planetas llamando al método
+	 * aumentarPoblacionTrasRonda de los mismos. Además, en aquellos planetas
+	 * que están conquistados, hace trabajar las minas para recaudar los materiales
+	 * @throws JuegoException si ocurre un fallo al minar
 	 */
+	private void accionesDeFinDeRonda() throws JuegoException {
+		for (Planeta p: this.t.getPlanetas()) {
+			// En todos los planetas nacerán nuevas personas
+			p.aumentarPoblacionTrasRonda();
+			if (p.getConquistador() != null) {
+				/*
+				 * Si el planeta está conquistado, las minas que hubiese 
+				 * añadirán los materiales a las reservas del planeta
+				 */
+				for (Mina m: p.getMinas()) {
+					if (m != null) {
+						try {
+							p.addUnidadesDeMateriaPrima(m.getMaterial(), m.getCantidadExtraidaTurno());
+						} 
+						catch (InvalidValueException e) {
+							// Si existe una excepción, es que lo hemos programado mal
+							throw new JuegoException("Ha ocurrido un fallo al minar " + m.getCantidadExtraidaTurno() + " unidades de " + m.getMaterial().toString() + " en el planeta " + p.getNombre());
+						}
+					}
+				}
+			}
+		}
+		
+	}
 	
 	/**
 	 * Asigna una nave a la órbita de un planeta
@@ -686,27 +1039,40 @@ public class PrincipalJuego {
 	}
 	
 	/**
-	 * Pregunta al usuario a qué planeta asignaremos la nave
-	 * @return
+	 * Muestra al jugador una lista numerada con todos sus planetas conquistados.
+	 * Muestra el mensaje pasado como parámetro y permite que seleccione el planeta
+	 * que quiere. Se añade una opción para cancelar la acción
+	 * @param mensaje Mensaje que se mostrará al jugador
+	 * @param jugador el jugador cuyos planetas se mostrarán
+	 * @return el planeta seleccionado
+	 * @throws CancelarException si el usuario escoge la opción 0
 	 */
-	private Planeta preguntaPlanetaAsignar(Jugador j) {
-		Planeta p = null;
-		String nombrePlaneta = null;
+	private Planeta seleccionaPlanetaPropio(String mensaje, Jugador jugador) throws CancelarException {
+		Planeta planetaSeleccionado = null;
 		
-		boolean ok = false;
-		while (!ok) {
-			System.out.println("Estos son tus planetas");
-			System.out.println(Arrays.toString(t.getPlanetasDeJugador(j)));
-			nombrePlaneta = UserDataCollector.getString("¿A qué planeta quieres asignar la nave?");
-			
-			// Tenemos que comprobar que el planeta existe y que es suyo
-			p = t.getPlaneta(nombrePlaneta);
-			if (p != null && p.getConquistador() == j) {
-				ok = true;
-			}
+		System.out.println(); // Línea en blanco para mejorar visibilidad
+		System.out.println("Estos son tus planetas:");
+		// Si no es oro, preguntaremos a qué planeta quiere añadirlo
+		Planeta[] planetasDeJugador = t.getPlanetasDeJugador(jugador);
+		
+		int i = 1;
+		for (Planeta p: planetasDeJugador) {
+			System.out.println(i++ + ": " + p);
 		}
 		
-		return p;
+		int indicePlanetaSeleccionado = UserDataCollector.getEnteroMinMax(mensaje, 0, planetasDeJugador.length);
+		
+		if (indicePlanetaSeleccionado == 0) {
+			// Si es coge la opción 0, cancelamos
+			throw new CancelarException();
+		}
+		else {
+			// El usuario ve los índices basados en 1, nosotros restamos 1 para basarlos en índice 0
+			planetaSeleccionado = planetasDeJugador[--indicePlanetaSeleccionado];
+
+		}
+		
+		return planetaSeleccionado;
 	}
 
 }

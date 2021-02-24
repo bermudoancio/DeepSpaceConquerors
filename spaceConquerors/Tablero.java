@@ -477,6 +477,48 @@ public class Tablero {
 		return total;
 	}
 
+	/**
+	 * Busca la nave n por todos los planetas y devuelve el planeta al que está
+	 * orbitando
+	 * @param n la nave que estamos buscando
+	 * @return el planeta que orbita n, o null si n no orbita ningún planeta
+	 */
+	public Planeta getPlanetaQueOrbitaNave(Nave n) {
+		boolean naveEncontrada = false;
+		Planeta planeta = null;
+		
+		for (int i = 0; i < this.getPlanetas().length && !naveEncontrada; i++) {
+			Planeta p = this.getPlanetas()[i];
+			
+			for (int j = 0; j < p.getNavesOrbitando().length && !naveEncontrada; j++) {
+				Nave naveQueOrbita = p.getNavesOrbitando()[j];
+				if (n == naveQueOrbita) {
+					naveEncontrada = true;
+					planeta = p;
+				}
+			}
+		}
+		
+		return planeta;
+	}
+	
+	/**
+	 * Comprueba si el jugador j está eliminado
+	 * @param j el jugador a comprobar
+	 * @return si el jugador j está eliminado o no
+	 */
+	public boolean checkJugadorEliminado(Jugador j) {
+		boolean eliminado = true;
+		
+		for (int i = 0; i < this.getPlanetas().length && eliminado; i++) {
+			Planeta p = this.getPlanetas()[i];
+			if (p.getConquistador() != null && p.getConquistador().equals(j)) {
+				eliminado = false;
+			}
+		}
+		
+		return eliminado;
+	}
 
 	@Override
 	public String toString() {

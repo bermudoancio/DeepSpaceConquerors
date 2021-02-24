@@ -8,6 +8,7 @@ public class Planeta implements IAtacable {
 	public static final int UNIDADES_HIERRO_DEFAULT = 4;
 	public static final int UNIDADES_COMBUSTIBLE_DEFAULT = 2;
 	public static final int HABITANTES_DEFAULT = 30;
+	private static final int NUEVOS_HABITANTES_POR_RONDA = 2;
 	
 	
 	private String nombre;
@@ -86,8 +87,14 @@ public class Planeta implements IAtacable {
 
 	@Override
 	/**
-	 * Trasladamos el ataque al escudo
+	 * Trasladamos el ataque al escudo. Si el planeta no tenía escudo, directamente se
+	 * lanza la excepción DestructionException, marcando que ha sido conquistado. Si
+	 * tras el ataque los puntos del escudo llegan a 0, también ocurrirá lo mismo.
+	 * Si el escudo se destruye, las personas asignadas al mismo deben volver al total
+	 * de habitantes.
 	 * @throws DestructionException Si el planeta ha sido conquistado
+	 * @throws InvalidValueException si puntosDaño es 0 o menor que 0
+	 * @throws JuegoException Si el planeta no estaba conquistado previamente
 	 */
 	public void serAtacado(int puntosDaño) throws InvalidValueException, DestructionException, JuegoException {
 		if (this.conquistador == null) {
@@ -100,7 +107,20 @@ public class Planeta implements IAtacable {
 			throw new DestructionException();
 		}
 		
-		this.escudo.serAtacado(puntosDaño);
+		try {
+			this.escudo.serAtacado(puntosDaño);
+		}
+		catch (DestructionException e) {
+			/*
+			 * El escudo ha sido destruido. Pasamos las personas asignadas a 
+			 * los habitantes y marcamos el escudo como null 
+			 */
+			this.escudo = null;
+			this.numHabitantes += EscudoProtector.PERSONAS_ASIGNADAS_ESCUDO_PROTECTOR;
+			
+			// Avisamos de la conquista
+			throw new DestructionException();
+		}
 	}
 	
 	/**
@@ -268,7 +288,7 @@ public class Planeta implements IAtacable {
 	 * @param unidades la cantidad de unidades de material que añadiremos
 	 * @throws InvalidValueException Si intentamos añadir 0 ó un número negativo de unidades, o un material diferente de los aceptados
 	 */
-	public void addUnidades(TMateriales material, int unidades) throws InvalidValueException {
+	public void addUnidadesDeMateriaPrima(TMateriales material, int unidades) throws InvalidValueException {
 		if (unidades <= 0) {
 			throw new InvalidValueException("No puedes añadir 0 o un número negativo de unidades");
 		}
@@ -286,6 +306,13 @@ public class Planeta implements IAtacable {
 		else {
 			throw new InvalidValueException("No puedes añadir al planeta este material: " + material.toString());
 		}
+	}
+	
+	/**
+	 * Aumenta la población de este planeta en el número de habitantes marque la constante Planeta.NUEVOS_HABITANTES_POR_RONDA
+	 */
+	public void aumentarPoblacionTrasRonda() {
+		this.numHabitantes += Planeta.NUEVOS_HABITANTES_POR_RONDA;
 	}
 	
 	

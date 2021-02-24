@@ -4,7 +4,7 @@ public class NaveAtaque extends Nave implements IAtacador {
 	
 	private static final int PODER_ATAQUE_DEFAULT = 3;
 	private static final int PRECIO_CARTA_NAVE_ATAQUE = 5;
-	private static final int PUNTOS_DEFENSA_INICIAL_ATAQUE = 20;
+	private static final int PUNTOS_DEFENSA_INICIAL_ATAQUE = 7;
 	
 	private int poderAtaque;
 
@@ -33,6 +33,13 @@ public class NaveAtaque extends Nave implements IAtacador {
 		}
 		
 		objetivo.serAtacado(this.poderAtaque);		
+	}
+	
+	/**
+	 * @return el poder de ataque de la nave
+	 */
+	public int getPoderAtaque() {
+		return this.poderAtaque;
 	}
 	
 	@Override
