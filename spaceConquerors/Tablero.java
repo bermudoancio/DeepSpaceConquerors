@@ -65,6 +65,27 @@ public class Tablero {
 	}
 	
 	/**
+	 * @return el dado A
+	 */
+	public Dado getDadoA() {
+		return dadoA;
+	}
+
+	/**
+	 * @return el dado B
+	 */
+	public Dado getDadoB() {
+		return dadoB;
+	}
+
+	/**
+	 * @return el dado C
+	 */
+	public Dado getDadoC() {
+		return dadoC;
+	}
+
+	/**
 	 * Método que devuelve la única instancia del tablero
 	 * @param jugadores el número de jugadores que jugará la partida
 	 * @return la única instancia del tablero

@@ -914,10 +914,35 @@ public class PrincipalJuego {
 		}
 		
 		try {
-			naveSeleccionada.atacar(objetivo);
+			if (objetivo instanceof Planeta) {
+				/*
+				 * Si es un planeta, vamos a darle la oportunidad al defensor de librarse del ataque.
+				 * Según las instrucciones, deberá tirar el dado B. Si saca el valor máximo
+				 * o mínimo de dicho dado, se salvará del ataque.
+				 */
+				UserDataCollector.getTecla("Jugador " + ((Planeta) objetivo).getConquistador().getNombre() + ": tira el dado para ver si puedes librarte del ataque pulsando enter");
+				
+				int resultado = t.lanzarDado('B');
+				
+				if (resultado == this.t.getDadoB().getMin() || resultado == this.t.getDadoB().getMax()) {
+					// Se ha librado
+					System.out.println(resultado + ": ¡¡¡Te has librado del ataque!!!");
+				}
+				else {
+					System.out.println(resultado + ": vaya, quizás la próxima vez");
+					naveSeleccionada.atacar(objetivo);
+					
+					// La siguiente línea no se mostrará si el objetivo se destruye, pues saltará la excepción DestructionException
+					System.out.println("El objetivo ahora tiene " + objetivo.getPuntosDefensa() + " puntos de defensa restantes");
+				}
+			}
+			else {
+				naveSeleccionada.atacar(objetivo);
+				
+				// La siguiente línea no se mostrará si el objetivo se destruye, pues saltará la excepción DestructionException
+				System.out.println("El objetivo ahora tiene " + objetivo.getPuntosDefensa() + " puntos de defensa restantes");
+			}
 			
-			// La siguiente línea no se mostrará si el objetivo se destruye, pues saltará la excepción DestructionException
-			System.out.println("El objetivo ahora tiene " + objetivo.getPuntosDefensa() + " puntos de defensa restantes");
 		} 
 		catch (InvalidValueException e) {
 			// La nave no atacará con un valor menor que 0. De todas formas:

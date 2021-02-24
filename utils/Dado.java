@@ -49,4 +49,14 @@ public class Dado implements ILanzable {
 		return r.nextInt(this.caras) + numMin;
 	}
 
+	@Override
+	public int getMin() {
+		return this.numMin;
+	}
+
+	@Override
+	public int getMax() {
+		return this.numMin + this.caras - 1;
+	}
+
 }
