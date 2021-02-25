@@ -766,22 +766,6 @@ public class PrincipalJuego {
 	 */
 	private void atacar(Jugador jugador) throws CancelarException {
 		/*
-		 * Lo primero que haremos será mostrar un listado de sus naves de ataque.
-		 * Si no tiene, directamente mostramos un mensaje de error y cancelamos.
-		 * Si las tiene, las mostraremos numeradas, junto al nombre del planeta
-		 * en el que están orbitando. Se añadirá una opción para cancelar.
-		 * Una vez seleccionada, se mostrarán todas las otras naves que orbitan
-		 * el planeta y que no son suyas y, por tanto, son atacables. Además,
-		 * si el planeta está conquistado por alguien que no sea el propio jugador,
-		 * se mostrará una opción para atacarlo. Tanto las naves como el planeta,
-		 * al ser listados, mostrarán los puntos de defensa restantes. Aquí 
-		 * volveremos a introducir una opción para cancelar.
-		 * Una vez seleccionado el objetivo, mostraremos los daños ocasionados.
-		 * Si el planeta hubiese sido conquistado, lo mostraremos por pantalla.
-		 * Si a raíz de esta última opción, un jugador queda eliminado, también
-		 * lo mostraremos por pantalla.
-		 */
-		/*
 		 * Vamos a mostrar las naves del usuario. Para ello, inspeccionamos todos
 		 * los planetas y contamos cuántas naves hay, para así crear un array con
 		 * el tamaño justo
@@ -914,9 +898,9 @@ public class PrincipalJuego {
 		}
 		
 		try {
-			if (objetivo instanceof Planeta) {
+			if (objetivo instanceof Planeta && ((Planeta) objetivo).getEscudo() != null) {
 				/*
-				 * Si es un planeta, vamos a darle la oportunidad al defensor de librarse del ataque.
+				 * Si es un planeta CON ESCUDO, vamos a darle la oportunidad al defensor de librarse del ataque.
 				 * Según las instrucciones, deberá tirar el dado B. Si saca el valor máximo
 				 * o mínimo de dicho dado, se salvará del ataque.
 				 */

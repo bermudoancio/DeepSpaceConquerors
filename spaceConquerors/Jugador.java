@@ -2,7 +2,7 @@ package spaceConquerors;
 
 public class Jugador implements Comparable<Jugador> {
 	
-	private static final int UNIDADES_ORO_INICIALES = 50;
+	private static final int UNIDADES_ORO_INICIALES = 5;
 	private static final int CARTAS_CONSTRUCCION_MAX = 100;
 
 	private int unidadesOro;
