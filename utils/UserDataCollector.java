@@ -8,7 +8,8 @@ public class UserDataCollector {
 	public static Scanner sc = new Scanner(System.in);
 	
 	/**
-	 * Muestra un mensaje por pantalla y solicita un entero
+	 * Muestra un mensaje por pantalla y solicita un entero. Repite la operación 
+	 * hasta que se introduce un número entero válido
 	 * @param mensaje El mensaje que se mostrará
 	 * @return el número introducido por el cliente
 	 */
@@ -32,7 +33,8 @@ public class UserDataCollector {
 	}
 	
 	/**
-	 * Muestra un mensaje por pantalla y solicita un entero comprendido entre min y max
+	 * Muestra un mensaje por pantalla y solicita un entero comprendido entre min y max.
+	 * Repite la operación hasta que se introduce un número entero comprendido entre min y max.
 	 * @param mensaje El mensaje que se mostrará
 	 * @param min El mínimo entero aceptado
 	 * @param max El máximo entero aceptado
@@ -49,7 +51,8 @@ public class UserDataCollector {
 	}
 	
 	/**
-	 * Muestra un mensaje por pantalla y solicita una cadena
+	 * Muestra un mensaje por pantalla y solicita una cadena.
+	 * Repite la operación hasta que se introduce una cadena válida.
 	 * @param mensaje El mensaje que se mostrará
 	 * @return La cadena introducida por el usuario
 	 */
@@ -67,6 +70,7 @@ public class UserDataCollector {
 	/**
 	 * Muestra un mensaje por pantalla y solicita una cadena que debe
 	 * estar comprendida entre una serie de opciones válidas
+	 * Repite la operación hasta que se introduce una cadena válida.
 	 * @param mensaje El mensaje que se mostrará
 	 * @param opciones Las opciones aceptadas
 	 * @return La cadena introducida por el usuario
