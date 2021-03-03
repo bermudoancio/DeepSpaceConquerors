@@ -1,6 +1,6 @@
 package spaceConquerors;
 
-public class NaveTransporte extends Nave {
+public class NaveTransporte extends Nave implements ITransportable {
 	
 	private static final int MEJORA_NAVE_TRANSPORTE = 2;
 	private static final int PRECIO_CARTA_NAVE_TRANSPORTE = 2;
@@ -53,6 +53,12 @@ public class NaveTransporte extends Nave {
 	 */
 	public int getCapacidad() {
 		return this.capacidad;
+	}
+	
+	@Override
+	public void transportar(Planeta destino, int personas) throws InvalidValueException, JuegoException {
+		// TODO Generar código
+		
 	}
 	
 	@Override
